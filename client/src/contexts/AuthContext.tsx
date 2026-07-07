@@ -15,8 +15,7 @@ const TOKEN_KEY = 'qa_token';
 // ─── JWT helpers (no library) ────────────────────────────────────────────────
 
 interface JwtPayload {
-  id: string;
-  username: string;
+  userId: string;
   role: 'student' | 'admin';
   exp: number;
   iat?: number;
@@ -25,6 +24,8 @@ interface JwtPayload {
 /**
  * Decodes a JWT payload without verifying the signature.
  * Returns null if the token is malformed or expired.
+ *
+ * The backend (JWTAdapter.sign) embeds { userId, role } — not id/username.
  */
 function decodeJwtPayload(token: string): JwtPayload | null {
   try {
@@ -48,13 +49,13 @@ function decodeJwtPayload(token: string): JwtPayload | null {
 
 /**
  * Builds a partial User object from a JWT payload.
- * Note: email and createdAt are not stored in the JWT; they are
+ * email, username, and createdAt are not stored in the JWT; they are
  * filled with empty strings until a profile call is made.
  */
 function userFromPayload(payload: JwtPayload): User {
   return {
-    id: payload.id,
-    username: payload.username,
+    id: payload.userId,
+    username: '',
     email: '',
     role: payload.role,
     createdAt: '',

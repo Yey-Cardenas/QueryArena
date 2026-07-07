@@ -1,5 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import * as adminApi from '../../api/admin.api';
 import { Level } from '../../types';
@@ -224,8 +225,8 @@ export default function AdminLevelsPage() {
               </thead>
               <tbody>
                 {levels.map((level) => (
-                  <>
-                    <tr key={level.id} style={styles.tr}>
+                  <React.Fragment key={level.id}>
+                    <tr style={styles.tr}>
                       <td style={styles.td}>{level.id}</td>
                       <td style={styles.td}>{level.name}</td>
                       <td style={styles.td}>{formatDate(level.createdAt)}</td>
@@ -249,13 +250,13 @@ export default function AdminLevelsPage() {
                       </td>
                     </tr>
                     {deleteErrors[level.id] && (
-                      <tr key={`${level.id}-error`}>
+                      <tr>
                         <td colSpan={4} style={styles.rowError} role="alert">
                           {deleteErrors[level.id]}
                         </td>
                       </tr>
                     )}
-                  </>
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>

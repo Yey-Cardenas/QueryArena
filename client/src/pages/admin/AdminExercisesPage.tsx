@@ -1,5 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import * as adminApi from '../../api/admin.api';
 import type { CreateExercisePayload, UpdateExercisePayload } from '../../api/admin.api';
@@ -317,8 +318,8 @@ export default function AdminExercisesPage() {
               </thead>
               <tbody>
                 {exercises.map((exercise) => (
-                  <>
-                    <tr key={exercise.id} style={styles.tr}>
+                  <React.Fragment key={exercise.id}>
+                    <tr style={styles.tr}>
                       <td style={styles.td}>{exercise.title}</td>
                       <td style={styles.td}>{exercise.level.name}</td>
                       <td style={styles.td}>{exercise.category.name}</td>
@@ -353,13 +354,13 @@ export default function AdminExercisesPage() {
                       </td>
                     </tr>
                     {deleteErrors[exercise.id] && (
-                      <tr key={`${exercise.id}-err`}>
+                      <tr>
                         <td colSpan={7} style={styles.rowError} role="alert">
                           {deleteErrors[exercise.id]}
                         </td>
                       </tr>
                     )}
-                  </>
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>

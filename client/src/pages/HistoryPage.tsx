@@ -165,7 +165,23 @@ export default function HistoryPage() {
             {error}
             <button
               style={styles.retryButton}
-              onClick={() => setFilterExerciseId(filterExerciseId)}
+              onClick={() => {
+                // Force a re-fetch by toggling a refresh counter
+                setError(null);
+                setIsLoading(true);
+                getAttemptHistory(filterExerciseId || undefined)
+                  .then((data) => {
+                    const sorted = [...data].sort(
+                      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+                    );
+                    setAttempts(sorted);
+                  })
+                  .catch((err: unknown) => {
+                    const message = err instanceof Error ? err.message : 'Failed to load history';
+                    setError(message);
+                  })
+                  .finally(() => setIsLoading(false));
+              }}
             >
               Retry
             </button>

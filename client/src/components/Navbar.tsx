@@ -1,14 +1,8 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
-
-  function handleLogout() {
-    logout();
-    navigate('/login');
-  }
 
   return (
     <nav style={s.nav} role="navigation" aria-label="Main navigation">
@@ -33,7 +27,7 @@ export default function Navbar() {
 
             <span style={s.divider}>|</span>
             <Link to="/profile" style={s.linkMuted}>{user.username}</Link>
-            <button onClick={handleLogout} style={s.logoutBtn}>Sign out</button>
+            <button onClick={logout} style={s.logoutBtn}>Sign out</button>
           </>
         ) : (
           <>

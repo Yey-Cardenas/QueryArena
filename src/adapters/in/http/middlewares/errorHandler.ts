@@ -47,6 +47,7 @@ const STATUS_MAP: Record<string, number> = Object.assign(Object.create(null) as 
 
   // 422
   VALIDATION_ERROR: 422,
+  EMPTY_QUERY: 422,
   HAS_ASSOCIATED_EXERCISES: 422,
   HAS_ASSOCIATED_ATTEMPTS: 422,
   INVALID_REFERENCE: 422,

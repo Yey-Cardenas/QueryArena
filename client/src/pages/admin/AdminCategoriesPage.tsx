@@ -1,5 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import * as adminApi from '../../api/admin.api';
 import { Category } from '../../types';
@@ -184,8 +185,8 @@ export default function AdminCategoriesPage() {
               </thead>
               <tbody>
                 {categories.map((cat) => (
-                  <>
-                    <tr key={cat.id} style={styles.tr}>
+                  <React.Fragment key={cat.id}>
+                    <tr style={styles.tr}>
                       <td style={styles.td}>{cat.id}</td>
                       <td style={styles.td}>{cat.name}</td>
                       <td style={{ ...styles.td, textAlign: 'right' }}>
@@ -208,13 +209,13 @@ export default function AdminCategoriesPage() {
                       </td>
                     </tr>
                     {deleteErrors[cat.id] && (
-                      <tr key={`${cat.id}-err`}>
+                      <tr>
                         <td colSpan={3} style={styles.rowError} role="alert">
                           {deleteErrors[cat.id]}
                         </td>
                       </tr>
                     )}
-                  </>
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>

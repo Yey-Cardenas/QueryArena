@@ -10,11 +10,18 @@ interface DashboardSummaryRaw {
   ranking_position: number | null;
 }
 
-interface ProgressByGroupRaw {
-  id: number;
-  name: string;
-  attempted: number;
-  correct: number;
+interface LevelProgressRaw {
+  level_id: number;
+  level_name: string;
+  exercises_attempted: number;
+  exercises_correct: number;
+}
+
+interface CategoryProgressRaw {
+  category_id: number;
+  category_name: string;
+  exercises_attempted: number;
+  exercises_correct: number;
 }
 
 interface AttemptRaw {
@@ -41,12 +48,21 @@ function mapSummary(raw: DashboardSummaryRaw): DashboardSummary {
   };
 }
 
-function mapProgress(raw: ProgressByGroupRaw): ProgressByGroup {
+function mapLevelProgress(raw: LevelProgressRaw): ProgressByGroup {
   return {
-    id: raw.id,
-    name: raw.name,
-    attempted: raw.attempted,
-    correct: raw.correct,
+    id: raw.level_id,
+    name: raw.level_name,
+    attempted: raw.exercises_attempted,
+    correct: raw.exercises_correct,
+  };
+}
+
+function mapCategoryProgress(raw: CategoryProgressRaw): ProgressByGroup {
+  return {
+    id: raw.category_id,
+    name: raw.category_name,
+    attempted: raw.exercises_attempted,
+    correct: raw.exercises_correct,
   };
 }
 
@@ -81,8 +97,8 @@ export async function getSummary(): Promise<DashboardSummary> {
  * GET /dashboard/progress/level
  */
 export async function getProgressByLevel(): Promise<ProgressByGroup[]> {
-  const { data } = await apiClient.get<ProgressByGroupRaw[]>('/dashboard/progress/level');
-  return data.map(mapProgress);
+  const { data } = await apiClient.get<LevelProgressRaw[]>('/dashboard/progress/level');
+  return data.map(mapLevelProgress);
 }
 
 /**
@@ -90,8 +106,8 @@ export async function getProgressByLevel(): Promise<ProgressByGroup[]> {
  * GET /dashboard/progress/category
  */
 export async function getProgressByCategory(): Promise<ProgressByGroup[]> {
-  const { data } = await apiClient.get<ProgressByGroupRaw[]>('/dashboard/progress/category');
-  return data.map(mapProgress);
+  const { data } = await apiClient.get<CategoryProgressRaw[]>('/dashboard/progress/category');
+  return data.map(mapCategoryProgress);
 }
 
 /**

@@ -117,7 +117,17 @@ export async function listExercisesAdmin(): Promise<ExerciseDetail[]> {
 
 /** POST /admin/exercises — create a new exercise */
 export async function createExercise(payload: CreateExercisePayload): Promise<Exercise> {
-  const { data } = await apiClient.post<Exercise>('/admin/exercises', {
+  interface ExerciseCreateRaw {
+    id: string;
+    title: string;
+    description: string;
+    level: { id: number; name: string };
+    category: { id: number; name: string };
+    score: number;
+    is_active: boolean;
+    created_at: string;
+  }
+  const { data } = await apiClient.post<ExerciseCreateRaw>('/admin/exercises', {
     title: payload.title,
     description: payload.description,
     enunciado: payload.description,   // backend requires both; enunciado = full statement
@@ -126,7 +136,16 @@ export async function createExercise(payload: CreateExercisePayload): Promise<Ex
     level_id: payload.levelId,
     category_id: payload.categoryId,
   });
-  return data;
+  return {
+    id: data.id,
+    title: data.title,
+    description: data.description,
+    level: data.level,
+    category: data.category,
+    score: data.score,
+    isActive: data.is_active,
+    createdAt: data.created_at,
+  };
 }
 
 /** PATCH /admin/exercises/:id — update an existing exercise */
