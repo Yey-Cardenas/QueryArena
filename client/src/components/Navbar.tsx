@@ -7,7 +7,8 @@ export default function Navbar() {
   return (
     <nav style={s.nav} role="navigation" aria-label="Navegación principal">
       <Link to="/" style={s.brand}>
-        <span style={s.brandIcon}>⚡</span> QueryArena
+        <img src="/logo.png" alt="QueryArena logo" style={s.brandImg} />
+        QueryArena
       </Link>
 
       <div style={s.links}>
@@ -67,8 +68,11 @@ const s: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     gap: '0.4rem',
   },
-  brandIcon: {
-    fontSize: '1.2rem',
+  brandImg: {
+    width: '32px',
+    height: '32px',
+    objectFit: 'contain' as const,
+    borderRadius: '6px',
   },
   links: {
     alignItems: 'center',
