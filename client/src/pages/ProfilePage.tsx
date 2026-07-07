@@ -24,12 +24,12 @@ function validateEditForm(fields: EditFields): FieldErrors {
   const errors: FieldErrors = {};
 
   if (!fields.username.trim()) {
-    errors.username = 'Username is required';
+    errors.username = 'El nombre de usuario es requerido';
   }
   if (!fields.email.trim()) {
-    errors.email = 'Email is required';
+    errors.email = 'El correo electrónico es requerido';
   } else if (!EMAIL_RE.test(fields.email.trim())) {
-    errors.email = 'Invalid email format';
+    errors.email = 'Formato de correo inválido';
   }
 
   return errors;
@@ -91,7 +91,7 @@ export default function ProfilePage() {
       })
       .catch((err: unknown) => {
         if (!cancelled) {
-          const message = err instanceof Error ? err.message : 'Failed to load profile';
+          const message = err instanceof Error ? err.message : 'Error al cargar el perfil';
           if (message.includes('401') || message.includes('UNAUTHORIZED') || message.includes('SESSION_EXPIRED')) {
             logout();
           } else {
@@ -154,19 +154,15 @@ export default function ProfilePage() {
       setIsEditing(false);
       setSuccessMessage('Profile updated successfully');
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Update failed';
+      const message = err instanceof Error ? err.message : 'Error al actualizar';
 
-      // Map backend error codes to field-level errors (Requirement 15.4)
       if (message.includes('Username is already taken') || message.includes('USERNAME_TAKEN')) {
-        setFieldErrors({ username: 'Username is already taken' });
+        setFieldErrors({ username: 'Ese nombre de usuario ya está en uso' });
       } else if (message.includes('Email is already in use') || message.includes('EMAIL_TAKEN')) {
-        setFieldErrors({ email: 'Email is already in use' });
+        setFieldErrors({ email: 'Ese correo ya está en uso' });
       } else if (message.includes('Invalid email format')) {
-        setFieldErrors({ email: 'Invalid email format' });
-      } else if (
-        message.includes('SESSION_EXPIRED') ||
-        message.includes('UNAUTHORIZED')
-      ) {
+        setFieldErrors({ email: 'Formato de correo inválido' });
+      } else if (message.includes('SESSION_EXPIRED') || message.includes('UNAUTHORIZED')) {
         logout();
       } else {
         setFormError(message);
@@ -184,7 +180,7 @@ export default function ProfilePage() {
     return (
       <div style={styles.container}>
         <div style={styles.card}>
-          <p style={styles.loadingText}>Loading profile…</p>
+          <p style={styles.loadingText}>Cargando perfil…</p>
         </div>
       </div>
     );
@@ -194,11 +190,9 @@ export default function ProfilePage() {
     return (
       <div style={styles.container}>
         <div style={styles.card}>
-          <div style={styles.formError} role="alert">
-            {loadError}
-          </div>
+          <div style={styles.formError} role="alert">{loadError}</div>
           <button style={styles.buttonSecondary} onClick={() => window.location.reload()}>
-            Retry
+            Reintentar
           </button>
         </div>
       </div>
@@ -212,44 +206,42 @@ export default function ProfilePage() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h1 style={styles.title}>My Profile</h1>
+        <h1 style={styles.title}>👤 Mi Perfil</h1>
 
         {successMessage && (
           <div style={styles.successBanner} role="status">
-            {successMessage}
+            ✓ {successMessage}
           </div>
         )}
 
         {!isEditing ? (
-          /* ── Read-only view (Requirement 3.1) ─────────────────────────────── */
           <>
             <dl style={styles.dataList}>
               <div style={styles.dataRow}>
-                <dt style={styles.dataLabel}>Username</dt>
+                <dt style={styles.dataLabel}>Nombre de usuario</dt>
                 <dd style={styles.dataValue}>{profile.username}</dd>
               </div>
               <div style={styles.dataRow}>
-                <dt style={styles.dataLabel}>Email</dt>
+                <dt style={styles.dataLabel}>Correo electrónico</dt>
                 <dd style={styles.dataValue}>{profile.email}</dd>
               </div>
               <div style={styles.dataRow}>
-                <dt style={styles.dataLabel}>Member since</dt>
+                <dt style={styles.dataLabel}>Miembro desde</dt>
                 <dd style={styles.dataValue}>{formatDate(profile.createdAt)}</dd>
               </div>
               <div style={styles.dataRow}>
-                <dt style={styles.dataLabel}>Role</dt>
+                <dt style={styles.dataLabel}>Rol</dt>
                 <dd style={{ ...styles.dataValue, textTransform: 'capitalize' }}>
-                  {profile.role}
+                  {profile.role === 'admin' ? '⚙️ Administrador' : '🎓 Estudiante'}
                 </dd>
               </div>
             </dl>
 
             <button style={styles.button} onClick={handleEditClick}>
-              Edit profile
+              ✏️ Editar perfil
             </button>
           </>
         ) : (
-          /* ── Edit form (Requirements 3.2, 15.1, 15.2) ─────────────────────── */
           <form onSubmit={handleEditSubmit} noValidate>
             {formError && (
               <div style={styles.formError} role="alert">
@@ -257,67 +249,30 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* Username */}
             <div style={styles.field}>
-              <label htmlFor="username" style={styles.label}>
-                Username
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                autoComplete="username"
-                value={editFields.username}
-                onChange={handleEditChange}
-                style={{
-                  ...styles.input,
-                  ...(fieldErrors.username ? styles.inputError : {}),
-                }}
-                disabled={isSubmitting}
-              />
-              {fieldErrors.username && (
-                <span style={styles.fieldError} role="alert">
-                  {fieldErrors.username}
-                </span>
-              )}
+              <label htmlFor="username" style={styles.label}>Nombre de usuario</label>
+              <input id="username" name="username" type="text" autoComplete="username"
+                value={editFields.username} onChange={handleEditChange}
+                style={{ ...styles.input, ...(fieldErrors.username ? styles.inputError : {}) }}
+                disabled={isSubmitting} />
+              {fieldErrors.username && <span style={styles.fieldError} role="alert">{fieldErrors.username}</span>}
             </div>
 
-            {/* Email */}
             <div style={styles.field}>
-              <label htmlFor="email" style={styles.label}>
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                value={editFields.email}
-                onChange={handleEditChange}
-                style={{
-                  ...styles.input,
-                  ...(fieldErrors.email ? styles.inputError : {}),
-                }}
-                disabled={isSubmitting}
-              />
-              {fieldErrors.email && (
-                <span style={styles.fieldError} role="alert">
-                  {fieldErrors.email}
-                </span>
-              )}
+              <label htmlFor="email" style={styles.label}>Correo electrónico</label>
+              <input id="email" name="email" type="email" autoComplete="email"
+                value={editFields.email} onChange={handleEditChange}
+                style={{ ...styles.input, ...(fieldErrors.email ? styles.inputError : {}) }}
+                disabled={isSubmitting} />
+              {fieldErrors.email && <span style={styles.fieldError} role="alert">{fieldErrors.email}</span>}
             </div>
 
             <div style={styles.actions}>
               <button type="submit" style={styles.button} disabled={isSubmitting}>
-                {isSubmitting ? 'Saving…' : 'Save changes'}
+                {isSubmitting ? 'Guardando…' : '💾 Guardar cambios'}
               </button>
-              <button
-                type="button"
-                style={styles.buttonSecondary}
-                onClick={handleCancelEdit}
-                disabled={isSubmitting}
-              >
-                Cancel
+              <button type="button" style={styles.buttonSecondary} onClick={handleCancelEdit} disabled={isSubmitting}>
+                Cancelar
               </button>
             </div>
           </form>
@@ -335,46 +290,49 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'flex-start',
     justifyContent: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8faff',
     padding: '3rem 1rem',
   },
   card: {
     backgroundColor: '#fff',
-    borderRadius: '8px',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-    padding: '2rem',
+    borderRadius: '12px',
+    boxShadow: '0 4px 20px rgba(99,102,241,0.1)',
+    border: '1px solid #e0e7ff',
+    padding: '2.5rem',
     width: '100%',
     maxWidth: '480px',
   },
   title: {
-    margin: '0 0 1.5rem',
+    margin: '0 0 1.75rem',
     fontSize: '1.5rem',
-    fontWeight: 600,
+    fontWeight: 800,
+    color: '#1e1b4b',
   },
   loadingText: {
-    color: '#6b7280',
+    color: '#9ca3af',
     textAlign: 'center',
   },
   successBanner: {
     backgroundColor: '#f0fdf4',
     border: '1px solid #86efac',
-    borderRadius: '4px',
-    color: '#16a34a',
+    borderRadius: '6px',
+    color: '#15803d',
     fontSize: '0.875rem',
     marginBottom: '1.25rem',
-    padding: '0.75rem',
+    padding: '0.75rem 1rem',
+    fontWeight: 500,
   },
   formError: {
     backgroundColor: '#fef2f2',
     border: '1px solid #fca5a5',
-    borderRadius: '4px',
+    borderRadius: '6px',
     color: '#dc2626',
     fontSize: '0.875rem',
     marginBottom: '1rem',
-    padding: '0.75rem',
+    padding: '0.75rem 1rem',
   },
   dataList: {
-    margin: '0 0 1.5rem',
+    margin: '0 0 1.75rem',
     padding: 0,
     listStyle: 'none',
   },
@@ -383,19 +341,19 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'space-between',
     alignItems: 'center',
     borderBottom: '1px solid #f3f4f6',
-    padding: '0.75rem 0',
+    padding: '0.85rem 0',
   },
   dataLabel: {
     fontSize: '0.875rem',
     color: '#6b7280',
-    fontWeight: 500,
+    fontWeight: 600,
     margin: 0,
   },
   dataValue: {
     fontSize: '0.95rem',
-    color: '#111827',
+    color: '#1e1b4b',
     margin: 0,
-    fontWeight: 400,
+    fontWeight: 500,
   },
   field: {
     display: 'flex',
@@ -403,50 +361,55 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: '1rem',
   },
   label: {
-    fontSize: '0.875rem',
-    fontWeight: 500,
-    marginBottom: '0.25rem',
+    fontSize: '0.85rem',
+    fontWeight: 600,
+    marginBottom: '0.35rem',
+    color: '#374151',
   },
   input: {
-    border: '1px solid #d1d5db',
-    borderRadius: '4px',
-    fontSize: '1rem',
-    padding: '0.5rem 0.75rem',
+    backgroundColor: '#f9fafb',
+    border: '1.5px solid #d1d5db',
+    borderRadius: '6px',
+    fontSize: '0.95rem',
+    padding: '0.6rem 0.85rem',
     outline: 'none',
+    color: '#111827',
   },
   inputError: {
-    borderColor: '#dc2626',
+    borderColor: '#ef4444',
+    backgroundColor: '#fff5f5',
   },
   fieldError: {
-    color: '#dc2626',
+    color: '#ef4444',
     fontSize: '0.8rem',
-    marginTop: '0.25rem',
+    marginTop: '0.3rem',
   },
   actions: {
     display: 'flex',
     gap: '0.75rem',
-    marginTop: '0.5rem',
+    marginTop: '0.75rem',
   },
   button: {
-    backgroundColor: '#2563eb',
+    background: 'linear-gradient(90deg, #4f46e5, #7c3aed)',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '6px',
     color: '#fff',
     cursor: 'pointer',
-    fontSize: '1rem',
-    fontWeight: 500,
-    padding: '0.6rem 1.25rem',
+    fontSize: '0.95rem',
+    fontWeight: 700,
+    padding: '0.65rem 1.25rem',
     flex: 1,
+    boxShadow: '0 2px 8px rgba(99,102,241,0.3)',
   },
   buttonSecondary: {
     backgroundColor: '#fff',
-    border: '1px solid #d1d5db',
-    borderRadius: '4px',
+    border: '1.5px solid #d1d5db',
+    borderRadius: '6px',
     color: '#374151',
     cursor: 'pointer',
-    fontSize: '1rem',
-    fontWeight: 500,
-    padding: '0.6rem 1.25rem',
+    fontSize: '0.95rem',
+    fontWeight: 600,
+    padding: '0.65rem 1.25rem',
     flex: 1,
   },
 };

@@ -114,13 +114,11 @@ export default function AdminLevelsPage() {
 
   function validateName(value: string, currentId?: number): string | null {
     const trimmed = value.trim();
-    if (!trimmed) return 'Name is required';
-
+    if (!trimmed) return 'El nombre es requerido';
     const duplicate = levels.some(
       (l) => l.name.toLowerCase() === trimmed.toLowerCase() && l.id !== currentId,
     );
-    if (duplicate) return 'A level with this name already exists';
-
+    if (duplicate) return 'Ya existe un nivel con ese nombre';
     return null;
   }
 
@@ -151,7 +149,7 @@ export default function AdminLevelsPage() {
       }
       closeModal();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Operation failed';
+      const message = err instanceof Error ? err.message : 'Error en la operación';
       setFormError(message);
     } finally {
       setIsSubmitting(false);
@@ -172,17 +170,11 @@ export default function AdminLevelsPage() {
       await adminApi.deleteLevel(level.id);
       setLevels((prev) => prev.filter((l) => l.id !== level.id));
     } catch (err: unknown) {
-      let message = 'Failed to delete level';
+      let message = 'Error al eliminar el nivel';
       if (err instanceof Error) {
-        if (
-          err.message.includes('HAS_ASSOCIATED_EXERCISES') ||
-          err.message.includes('409') ||
-          err.message.includes('associated')
-        ) {
-          message = 'Cannot delete: level has associated exercises';
-        } else {
-          message = err.message;
-        }
+        if (err.message.includes('HAS_ASSOCIATED_EXERCISES') || err.message.includes('409') || err.message.includes('associated')) {
+          message = 'No se puede eliminar: el nivel tiene ejercicios asociados';
+        } else { message = err.message; }
       }
       setDeleteErrors((prev) => ({ ...prev, [level.id]: message }));
     }
@@ -195,32 +187,29 @@ export default function AdminLevelsPage() {
   return (
     <div style={styles.container}>
       <div style={styles.inner}>
-        {/* Header */}
+        {/* Encabezado */}
         <div style={styles.header}>
-          <h1 style={styles.title}>Difficulty Levels</h1>
+          <h1 style={styles.title}>🎯 Niveles de Dificultad</h1>
           <button type="button" style={styles.primaryButton} onClick={openCreateModal}>
-            + Create level
+            + Crear nivel
           </button>
         </div>
 
-        {/* Load state */}
         {isLoading ? (
-          <p style={styles.statusText}>Loading levels…</p>
+          <p style={styles.statusText}>Cargando niveles…</p>
         ) : loadError ? (
-          <div style={styles.errorBanner} role="alert">
-            {loadError}
-          </div>
+          <div style={styles.errorBanner} role="alert">{loadError}</div>
         ) : levels.length === 0 ? (
-          <p style={styles.statusText}>No levels found. Create one to get started.</p>
+          <p style={styles.statusText}>No hay niveles. Crea uno para comenzar.</p>
         ) : (
           <div style={styles.tableWrapper}>
-            <table style={styles.table} aria-label="Difficulty levels">
+            <table style={styles.table} aria-label="Niveles de dificultad">
               <thead>
-                <tr>
+                <tr style={styles.thead}>
                   <th style={styles.th}>ID</th>
-                  <th style={styles.th}>Name</th>
-                  <th style={styles.th}>Created At</th>
-                  <th style={{ ...styles.th, ...styles.thActions }}>Actions</th>
+                  <th style={styles.th}>Nombre</th>
+                  <th style={styles.th}>Creado</th>
+                  <th style={{ ...styles.th, ...styles.thActions }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -231,22 +220,10 @@ export default function AdminLevelsPage() {
                       <td style={styles.td}>{level.name}</td>
                       <td style={styles.td}>{formatDate(level.createdAt)}</td>
                       <td style={{ ...styles.td, ...styles.tdActions }}>
-                        <button
-                          type="button"
-                          style={styles.editButton}
-                          onClick={() => openEditModal(level)}
-                          aria-label={`Edit level ${level.name}`}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          style={styles.deleteButton}
-                          onClick={() => handleDelete(level)}
-                          aria-label={`Delete level ${level.name}`}
-                        >
-                          Delete
-                        </button>
+                        <button type="button" style={styles.editButton} onClick={() => openEditModal(level)}
+                          aria-label={`Editar nivel ${level.name}`}>Editar</button>
+                        <button type="button" style={styles.deleteButton} onClick={() => handleDelete(level)}
+                          aria-label={`Eliminar nivel ${level.name}`}>Eliminar</button>
                       </td>
                     </tr>
                     {deleteErrors[level.id] && (
@@ -266,74 +243,32 @@ export default function AdminLevelsPage() {
 
       {/* Modal */}
       {modal && (
-        <div
-          style={styles.overlay}
-          role="dialog"
-          aria-modal="true"
-          aria-label={modal.mode === 'create' ? 'Create level' : 'Edit level'}
-          onClick={(e) => {
-            // Close on backdrop click
-            if (e.target === e.currentTarget) closeModal();
-          }}
-        >
+        <div style={styles.overlay} role="dialog" aria-modal="true"
+          aria-label={modal.mode === 'create' ? 'Crear nivel' : 'Editar nivel'}
+          onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}>
           <div style={styles.modalCard}>
             <h2 style={styles.modalTitle}>
-              {modal.mode === 'create' ? 'Create level' : 'Edit level'}
+              {modal.mode === 'create' ? '+ Crear nivel' : '✏️ Editar nivel'}
             </h2>
-
-            {formError && (
-              <div style={styles.formError} role="alert">
-                {formError}
-              </div>
-            )}
-
+            {formError && <div style={styles.formError} role="alert">{formError}</div>}
             <form onSubmit={handleSubmit} noValidate>
               <div style={styles.field}>
-                <label htmlFor="level-name" style={styles.label}>
-                  Name
-                </label>
-                <input
-                  id="level-name"
-                  type="text"
-                  autoComplete="off"
-                  autoFocus
-                  value={nameValue}
-                  onChange={(e) => {
-                    setNameValue(e.target.value);
-                    setNameError(null);
-                    setFormError(null);
-                  }}
-                  style={{
-                    ...styles.input,
-                    ...(nameError ? styles.inputError : {}),
-                  }}
+                <label htmlFor="level-name" style={styles.label}>Nombre</label>
+                <input id="level-name" type="text" autoComplete="off" autoFocus value={nameValue}
+                  onChange={(e) => { setNameValue(e.target.value); setNameError(null); setFormError(null); }}
+                  style={{ ...styles.input, ...(nameError ? styles.inputError : {}) }}
                   disabled={isSubmitting}
-                  aria-describedby={nameError ? 'level-name-error' : undefined}
-                />
-                {nameError && (
-                  <span id="level-name-error" style={styles.fieldError}>
-                    {nameError}
-                  </span>
-                )}
+                  aria-describedby={nameError ? 'level-name-error' : undefined} />
+                {nameError && <span id="level-name-error" style={styles.fieldError}>{nameError}</span>}
               </div>
-
               <div style={styles.modalActions}>
-                <button
-                  type="button"
-                  style={styles.cancelButton}
-                  onClick={closeModal}
-                  disabled={isSubmitting}
-                >
-                  Cancel
+                <button type="button" style={styles.cancelButton} onClick={closeModal} disabled={isSubmitting}>
+                  Cancelar
                 </button>
                 <button type="submit" style={styles.primaryButton} disabled={isSubmitting}>
                   {isSubmitting
-                    ? modal.mode === 'create'
-                      ? 'Creating…'
-                      : 'Saving…'
-                    : modal.mode === 'create'
-                      ? 'Create'
-                      : 'Save'}
+                    ? (modal.mode === 'create' ? 'Creando…' : 'Guardando…')
+                    : (modal.mode === 'create' ? 'Crear' : 'Guardar')}
                 </button>
               </div>
             </form>
@@ -347,187 +282,33 @@ export default function AdminLevelsPage() {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles: Record<string, React.CSSProperties> = {
-  container: {
-    minHeight: '100vh',
-    backgroundColor: '#f5f5f5',
-    padding: '3rem 1rem',
-  },
-  inner: {
-    maxWidth: '800px',
-    margin: '0 auto',
-  },
-  header: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: '1.5rem',
-  },
-  title: {
-    margin: 0,
-    fontSize: '1.75rem',
-    fontWeight: 600,
-    color: '#111827',
-  },
-  statusText: {
-    color: '#6b7280',
-    textAlign: 'center',
-    padding: '2rem 0',
-  },
-  errorBanner: {
-    backgroundColor: '#fef2f2',
-    border: '1px solid #fca5a5',
-    borderRadius: '6px',
-    color: '#dc2626',
-    fontSize: '0.9rem',
-    padding: '0.75rem 1rem',
-  },
-  tableWrapper: {
-    backgroundColor: '#fff',
-    border: '1px solid #e5e7eb',
-    borderRadius: '8px',
-    overflow: 'hidden',
-  },
-  table: {
-    borderCollapse: 'collapse',
-    width: '100%',
-  },
-  th: {
-    backgroundColor: '#f9fafb',
-    borderBottom: '1px solid #e5e7eb',
-    color: '#6b7280',
-    fontSize: '0.75rem',
-    fontWeight: 600,
-    letterSpacing: '0.05em',
-    padding: '0.75rem 1rem',
-    textAlign: 'left',
-    textTransform: 'uppercase',
-  },
-  thActions: {
-    textAlign: 'right',
-  },
-  tr: {
-    borderBottom: '1px solid #f3f4f6',
-  },
-  td: {
-    color: '#111827',
-    fontSize: '0.95rem',
-    padding: '0.85rem 1rem',
-    verticalAlign: 'middle',
-  },
-  tdActions: {
-    display: 'flex',
-    gap: '0.5rem',
-    justifyContent: 'flex-end',
-  },
-  rowError: {
-    backgroundColor: '#fef2f2',
-    color: '#dc2626',
-    fontSize: '0.85rem',
-    padding: '0.5rem 1rem',
-    textAlign: 'right',
-  },
-  primaryButton: {
-    backgroundColor: '#2563eb',
-    border: 'none',
-    borderRadius: '4px',
-    color: '#fff',
-    cursor: 'pointer',
-    fontSize: '0.9rem',
-    fontWeight: 500,
-    padding: '0.5rem 1rem',
-  },
-  editButton: {
-    backgroundColor: 'transparent',
-    border: '1px solid #d1d5db',
-    borderRadius: '4px',
-    color: '#374151',
-    cursor: 'pointer',
-    fontSize: '0.85rem',
-    padding: '0.3rem 0.75rem',
-  },
-  deleteButton: {
-    backgroundColor: 'transparent',
-    border: '1px solid #dc2626',
-    borderRadius: '4px',
-    color: '#dc2626',
-    cursor: 'pointer',
-    fontSize: '0.85rem',
-    padding: '0.3rem 0.75rem',
-  },
-  cancelButton: {
-    backgroundColor: 'transparent',
-    border: '1px solid #d1d5db',
-    borderRadius: '4px',
-    color: '#374151',
-    cursor: 'pointer',
-    fontSize: '0.9rem',
-    padding: '0.5rem 1rem',
-  },
-  // Modal
-  overlay: {
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    bottom: 0,
-    display: 'flex',
-    justifyContent: 'center',
-    left: 0,
-    position: 'fixed',
-    right: 0,
-    top: 0,
-    zIndex: 50,
-  },
-  modalCard: {
-    backgroundColor: '#fff',
-    borderRadius: '8px',
-    boxShadow: '0 4px 24px rgba(0,0,0,0.15)',
-    padding: '2rem',
-    width: '100%',
-    maxWidth: '400px',
-  },
-  modalTitle: {
-    fontSize: '1.25rem',
-    fontWeight: 600,
-    margin: '0 0 1.25rem',
-    color: '#111827',
-  },
-  formError: {
-    backgroundColor: '#fef2f2',
-    border: '1px solid #fca5a5',
-    borderRadius: '4px',
-    color: '#dc2626',
-    fontSize: '0.875rem',
-    marginBottom: '1rem',
-    padding: '0.75rem',
-  },
-  field: {
-    display: 'flex',
-    flexDirection: 'column',
-    marginBottom: '1.25rem',
-  },
-  label: {
-    fontSize: '0.875rem',
-    fontWeight: 500,
-    marginBottom: '0.25rem',
-    color: '#374151',
-  },
-  input: {
-    border: '1px solid #d1d5db',
-    borderRadius: '4px',
-    fontSize: '1rem',
-    padding: '0.5rem 0.75rem',
-    outline: 'none',
-  },
-  inputError: {
-    borderColor: '#dc2626',
-  },
-  fieldError: {
-    color: '#dc2626',
-    fontSize: '0.8rem',
-    marginTop: '0.25rem',
-  },
-  modalActions: {
-    display: 'flex',
-    gap: '0.75rem',
-    justifyContent: 'flex-end',
-  },
+  container:     { minHeight: '100vh', backgroundColor: '#f8faff', padding: '3rem 1rem' },
+  inner:         { maxWidth: '800px', margin: '0 auto' },
+  header:        { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' },
+  title:         { margin: 0, fontSize: '1.75rem', fontWeight: 800, color: '#1e1b4b' },
+  statusText:    { color: '#9ca3af', textAlign: 'center', padding: '2rem 0' },
+  errorBanner:   { backgroundColor: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '6px', color: '#dc2626', fontSize: '0.9rem', padding: '0.75rem 1rem' },
+  tableWrapper:  { backgroundColor: '#fff', border: '1px solid #e0e7ff', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(99,102,241,0.07)' },
+  table:         { borderCollapse: 'collapse', width: '100%' },
+  thead:         { background: 'linear-gradient(90deg, #ede9fe, #e0e7ff)' },
+  th:            { color: '#4f46e5', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em', padding: '0.75rem 1rem', textAlign: 'left', textTransform: 'uppercase', borderBottom: '2px solid #e0e7ff' },
+  thActions:     { textAlign: 'right' },
+  tr:            { borderBottom: '1px solid #f3f4f6' },
+  td:            { color: '#111827', fontSize: '0.95rem', padding: '0.85rem 1rem', verticalAlign: 'middle' },
+  tdActions:     { display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' },
+  rowError:      { backgroundColor: '#fef2f2', color: '#dc2626', fontSize: '0.85rem', padding: '0.5rem 1rem', textAlign: 'right' },
+  primaryButton: { background: 'linear-gradient(90deg, #4f46e5, #7c3aed)', border: 'none', borderRadius: '6px', color: '#fff', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 700, padding: '0.5rem 1rem', boxShadow: '0 2px 6px rgba(99,102,241,0.3)' },
+  editButton:    { backgroundColor: '#fff', border: '1.5px solid #c4b5fd', borderRadius: '4px', color: '#4f46e5', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, padding: '0.3rem 0.75rem' },
+  deleteButton:  { backgroundColor: '#fff', border: '1.5px solid #fca5a5', borderRadius: '4px', color: '#dc2626', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, padding: '0.3rem 0.75rem' },
+  cancelButton:  { backgroundColor: '#fff', border: '1.5px solid #d1d5db', borderRadius: '6px', color: '#374151', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, padding: '0.5rem 1rem' },
+  overlay:       { alignItems: 'center', backgroundColor: 'rgba(30,27,75,0.5)', bottom: 0, display: 'flex', justifyContent: 'center', left: 0, position: 'fixed', right: 0, top: 0, zIndex: 50 },
+  modalCard:     { backgroundColor: '#fff', borderRadius: '10px', boxShadow: '0 8px 32px rgba(99,102,241,0.2)', padding: '2rem', width: '100%', maxWidth: '400px', border: '1px solid #e0e7ff' },
+  modalTitle:    { fontSize: '1.25rem', fontWeight: 800, margin: '0 0 1.25rem', color: '#1e1b4b' },
+  formError:     { backgroundColor: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '6px', color: '#dc2626', fontSize: '0.875rem', marginBottom: '1rem', padding: '0.75rem' },
+  field:         { display: 'flex', flexDirection: 'column', marginBottom: '1.25rem' },
+  label:         { fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.3rem', color: '#374151' },
+  input:         { backgroundColor: '#f9fafb', border: '1.5px solid #d1d5db', borderRadius: '6px', fontSize: '1rem', padding: '0.55rem 0.75rem', outline: 'none', color: '#111827' },
+  inputError:    { borderColor: '#ef4444', backgroundColor: '#fff5f5' },
+  fieldError:    { color: '#ef4444', fontSize: '0.8rem', marginTop: '0.25rem' },
+  modalActions:  { display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' },
 };

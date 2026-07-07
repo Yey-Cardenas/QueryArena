@@ -132,69 +132,41 @@ export default function DashboardPage() {
   return (
     <div style={styles.container}>
       <div style={styles.inner}>
-        <h1 style={styles.title}>Dashboard</h1>
+        <h1 style={styles.title}>📊 Dashboard</h1>
 
-        {/* Loading state */}
-        {isLoading && (
-          <p style={styles.statusText} aria-live="polite">
-            Cargando dashboard…
-          </p>
-        )}
+        {isLoading && <p style={styles.statusText} aria-live="polite">Cargando dashboard…</p>}
 
-        {/* Error state */}
         {!isLoading && error && (
           <div style={styles.errorBanner} role="alert">
             {error}
-            <button
-              style={styles.retryButton}
-              onClick={() => window.location.reload()}
-            >
-              Reintentar
-            </button>
+            <button style={styles.retryButton} onClick={() => window.location.reload()}>Reintentar</button>
           </div>
         )}
 
         {/* Dashboard content */}
         {!isLoading && !error && summary && (
           <>
-            {/* ── Summary cards (Requirements 9.1, 9.2) ───────────────── */}
+            {/* ── Resumen ─────────────────────────────────────────────── */}
             <section aria-labelledby="summary-heading" style={styles.section}>
-              <h2 id="summary-heading" style={styles.sectionTitle}>
-                Resumen
-              </h2>
+              <h2 id="summary-heading" style={styles.sectionTitle}>📈 Resumen</h2>
               <div style={styles.statsGrid}>
-                <StatCard
-                  label="Ejercicios intentados"
-                  value={summary.totalAttempted}
-                />
-                <StatCard
-                  label="Ejercicios correctos"
-                  value={summary.totalCorrect}
-                />
-                <StatCard
-                  label="Puntaje acumulado"
-                  value={summary.accumulatedScore}
-                  accent
-                />
-                <StatCard
-                  label="Posición en ranking"
-                  value={summary.rankingPosition ?? '—'}
-                />
+                <StatCard label="Ejercicios intentados" value={summary.totalAttempted} />
+                <StatCard label="Ejercicios correctos" value={summary.totalCorrect} />
+                <StatCard label="Puntaje acumulado" value={summary.accumulatedScore} accent />
+                <StatCard label="Posición en ranking" value={summary.rankingPosition ?? '—'} />
               </div>
             </section>
 
-            {/* ── Progress by level (Requirement 9.3) ─────────────────── */}
+            {/* ── Progreso por nivel ───────────────────────────────────── */}
             <section aria-labelledby="by-level-heading" style={styles.section}>
-              <h2 id="by-level-heading" style={styles.sectionTitle}>
-                Progreso por nivel
-              </h2>
+              <h2 id="by-level-heading" style={styles.sectionTitle}>🎯 Progreso por nivel</h2>
               {progressByLevel.length === 0 ? (
                 <p style={styles.emptyText}>No hay intentos aún.</p>
               ) : (
                 <div style={styles.tableWrapper}>
                   <table style={styles.table} aria-label="Progreso por nivel">
                     <thead>
-                      <tr>
+                      <tr style={styles.thead}>
                         <th style={styles.th}>Nivel</th>
                         <th style={{ ...styles.th, ...styles.thRight }}>Intentados</th>
                         <th style={{ ...styles.th, ...styles.thRight }}>Correctos</th>
@@ -214,18 +186,16 @@ export default function DashboardPage() {
               )}
             </section>
 
-            {/* ── Progress by category (Requirement 9.3) ──────────────── */}
+            {/* ── Progreso por categoría ───────────────────────────────── */}
             <section aria-labelledby="by-category-heading" style={styles.section}>
-              <h2 id="by-category-heading" style={styles.sectionTitle}>
-                Progreso por categoría
-              </h2>
+              <h2 id="by-category-heading" style={styles.sectionTitle}>🏷️ Progreso por categoría</h2>
               {progressByCategory.length === 0 ? (
                 <p style={styles.emptyText}>No hay intentos aún.</p>
               ) : (
                 <div style={styles.tableWrapper}>
                   <table style={styles.table} aria-label="Progreso por categoría">
                     <thead>
-                      <tr>
+                      <tr style={styles.thead}>
                         <th style={styles.th}>Categoría</th>
                         <th style={{ ...styles.th, ...styles.thRight }}>Intentados</th>
                         <th style={{ ...styles.th, ...styles.thRight }}>Correctos</th>
@@ -245,18 +215,16 @@ export default function DashboardPage() {
               )}
             </section>
 
-            {/* ── Recent history (Requirements 9.4, 9.5) ──────────────── */}
+            {/* ── Historial reciente ───────────────────────────────────── */}
             <section aria-labelledby="history-heading" style={styles.section}>
-              <h2 id="history-heading" style={styles.sectionTitle}>
-                Historial reciente
-              </h2>
+              <h2 id="history-heading" style={styles.sectionTitle}>🕐 Historial reciente</h2>
               {recentHistory.length === 0 ? (
                 <p style={styles.emptyText}>No hay intentos aún.</p>
               ) : (
                 <div style={styles.tableWrapper}>
                   <table style={styles.table} aria-label="Historial reciente de intentos">
                     <thead>
-                      <tr>
+                      <tr style={styles.thead}>
                         <th style={styles.th}>Ejercicio</th>
                         <th style={{ ...styles.th, ...styles.thCenter }}>Estado</th>
                         <th style={{ ...styles.th, ...styles.thRight }}>Puntaje</th>
@@ -266,20 +234,14 @@ export default function DashboardPage() {
                     <tbody>
                       {recentHistory.map((attempt) => (
                         <tr key={attempt.id} style={styles.tr}>
-                          <td style={styles.td}>
-                            {attempt.exerciseTitle ?? attempt.exerciseId}
-                          </td>
+                          <td style={styles.td}>{attempt.exerciseTitle ?? attempt.exerciseId}</td>
                           <td style={{ ...styles.td, ...styles.tdCenter }}>
                             <span style={{ ...styles.badge, ...statusStyle(attempt.status) }}>
                               {statusLabel(attempt.status)}
                             </span>
                           </td>
-                          <td style={{ ...styles.td, ...styles.tdRight }}>
-                            {attempt.score}
-                          </td>
-                          <td style={{ ...styles.td, ...styles.tdRight }}>
-                            {formatDate(attempt.createdAt)}
-                          </td>
+                          <td style={{ ...styles.td, ...styles.tdRight }}>{attempt.score} pts</td>
+                          <td style={{ ...styles.td, ...styles.tdRight }}>{formatDate(attempt.createdAt)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -297,159 +259,32 @@ export default function DashboardPage() {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles: Record<string, React.CSSProperties> = {
-  container: {
-    minHeight: '100vh',
-    backgroundColor: '#f5f5f5',
-    padding: '3rem 1rem',
-  },
-  inner: {
-    maxWidth: '900px',
-    margin: '0 auto',
-  },
-  title: {
-    margin: '0 0 1.5rem',
-    fontSize: '1.75rem',
-    fontWeight: 600,
-    color: '#111827',
-  },
-  section: {
-    backgroundColor: '#fff',
-    border: '1px solid #e5e7eb',
-    borderRadius: '8px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-    marginBottom: '1.5rem',
-    padding: '1.5rem',
-  },
-  sectionTitle: {
-    margin: '0 0 1rem',
-    fontSize: '1.1rem',
-    fontWeight: 600,
-    color: '#374151',
-  },
-  // Stat cards
-  statsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-    gap: '1rem',
-  },
-  statCard: {
-    backgroundColor: '#f9fafb',
-    border: '1px solid #e5e7eb',
-    borderRadius: '8px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '0.25rem',
-    padding: '1.25rem 1rem',
-    textAlign: 'center',
-  },
-  statCardAccent: {
-    backgroundColor: '#eff6ff',
-    borderColor: '#bfdbfe',
-  },
-  statValue: {
-    fontSize: '2rem',
-    fontWeight: 700,
-    color: '#111827',
-    lineHeight: 1,
-  },
-  statLabel: {
-    fontSize: '0.8rem',
-    fontWeight: 500,
-    color: '#6b7280',
-    textTransform: 'uppercase',
-    letterSpacing: '0.05em',
-  },
-  // Empty / status
-  emptyText: {
-    color: '#6b7280',
-    fontSize: '0.9rem',
-    margin: 0,
-    padding: '0.5rem 0',
-  },
-  statusText: {
-    color: '#6b7280',
-    textAlign: 'center',
-    padding: '2rem 0',
-  },
-  errorBanner: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#fef2f2',
-    border: '1px solid #fca5a5',
-    borderRadius: '6px',
-    color: '#dc2626',
-    fontSize: '0.9rem',
-    padding: '0.75rem 1rem',
-    marginBottom: '1rem',
-  },
-  retryButton: {
-    backgroundColor: 'transparent',
-    border: '1px solid #dc2626',
-    borderRadius: '4px',
-    color: '#dc2626',
-    cursor: 'pointer',
-    fontSize: '0.85rem',
-    padding: '0.3rem 0.75rem',
-    marginLeft: '1rem',
-  },
-  // Tables
-  tableWrapper: {
-    overflowX: 'auto',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    fontSize: '0.9rem',
-  },
-  th: {
-    borderBottom: '2px solid #e5e7eb',
-    color: '#6b7280',
-    fontWeight: 600,
-    fontSize: '0.8rem',
-    textTransform: 'uppercase',
-    letterSpacing: '0.05em',
-    padding: '0.6rem 0.75rem',
-    textAlign: 'left',
-  },
-  thCenter: {
-    textAlign: 'center',
-  },
-  thRight: {
-    textAlign: 'right',
-  },
-  tr: {
-    borderBottom: '1px solid #f3f4f6',
-  },
-  td: {
-    padding: '0.75rem',
-    color: '#111827',
-    verticalAlign: 'middle',
-  },
-  tdCenter: {
-    textAlign: 'center',
-  },
-  tdRight: {
-    textAlign: 'right',
-  },
-  badge: {
-    display: 'inline-block',
-    borderRadius: '9999px',
-    fontSize: '0.75rem',
-    fontWeight: 600,
-    padding: '0.2rem 0.6rem',
-  },
-  badgeCorrect: {
-    backgroundColor: '#f0fdf4',
-    color: '#16a34a',
-  },
-  badgeIncorrect: {
-    backgroundColor: '#fef9c3',
-    color: '#a16207',
-  },
-  badgeError: {
-    backgroundColor: '#fef2f2',
-    color: '#dc2626',
-  },
+  container:   { minHeight: '100vh', backgroundColor: '#f8faff', padding: '3rem 1rem' },
+  inner:       { maxWidth: '900px', margin: '0 auto' },
+  title:       { margin: '0 0 1.75rem', fontSize: '1.75rem', fontWeight: 800, color: '#1e1b4b' },
+  section:     { backgroundColor: '#fff', border: '1px solid #e0e7ff', borderRadius: '10px', boxShadow: '0 2px 8px rgba(99,102,241,0.07)', marginBottom: '1.5rem', padding: '1.5rem' },
+  sectionTitle:{ margin: '0 0 1rem', fontSize: '1.05rem', fontWeight: 700, color: '#4f46e5' },
+  statsGrid:   { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' },
+  statCard:    { backgroundColor: '#f8faff', border: '1px solid #e0e7ff', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem', padding: '1.25rem 1rem', textAlign: 'center' },
+  statCardAccent: { background: 'linear-gradient(135deg, #ede9fe, #e0e7ff)', borderColor: '#c4b5fd' },
+  statValue:   { fontSize: '2rem', fontWeight: 800, color: '#1e1b4b', lineHeight: 1 },
+  statLabel:   { fontSize: '0.78rem', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' },
+  emptyText:   { color: '#9ca3af', fontSize: '0.9rem', margin: 0, padding: '0.5rem 0' },
+  statusText:  { color: '#9ca3af', textAlign: 'center', padding: '2rem 0' },
+  errorBanner: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '6px', color: '#dc2626', fontSize: '0.9rem', padding: '0.75rem 1rem', marginBottom: '1rem' },
+  retryButton: { backgroundColor: 'transparent', border: '1px solid #dc2626', borderRadius: '4px', color: '#dc2626', cursor: 'pointer', fontSize: '0.85rem', padding: '0.3rem 0.75rem', marginLeft: '1rem' },
+  tableWrapper:{ overflowX: 'auto' },
+  table:       { width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' },
+  thead:       { background: 'linear-gradient(90deg, #ede9fe, #e0e7ff)' },
+  th:          { color: '#4f46e5', fontWeight: 700, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '0.65rem 0.85rem', textAlign: 'left', borderBottom: '2px solid #e0e7ff' },
+  thCenter:    { textAlign: 'center' },
+  thRight:     { textAlign: 'right' },
+  tr:          { borderBottom: '1px solid #f3f4f6' },
+  td:          { padding: '0.75rem 0.85rem', color: '#111827', verticalAlign: 'middle' },
+  tdCenter:    { textAlign: 'center' },
+  tdRight:     { textAlign: 'right' },
+  badge:       { display: 'inline-block', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700, padding: '0.25rem 0.7rem' },
+  badgeCorrect:   { backgroundColor: '#dcfce7', color: '#15803d' },
+  badgeIncorrect: { backgroundColor: '#fef9c3', color: '#a16207' },
+  badgeError:     { backgroundColor: '#fee2e2', color: '#b91c1c' },
 };

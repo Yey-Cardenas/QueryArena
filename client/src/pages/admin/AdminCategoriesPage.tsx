@@ -96,7 +96,7 @@ export default function AdminCategoriesPage() {
 
     const trimmed = nameInput.trim();
     if (!trimmed) {
-      setNameError('Name is required');
+      setNameError('El nombre es requerido');
       return;
     }
 
@@ -116,7 +116,7 @@ export default function AdminCategoriesPage() {
       }
       closeModal();
     } catch (err: unknown) {
-      setSubmitError(err instanceof Error ? err.message : 'An error occurred');
+      setSubmitError(err instanceof Error ? err.message : 'Error en la operación');
     } finally {
       setIsSubmitting(false);
     }
@@ -136,13 +136,12 @@ export default function AdminCategoriesPage() {
       setCategories((prev) => prev.filter((c) => c.id !== category.id));
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : '';
-      const isAssociated =
-        message.includes('HAS_ASSOCIATED_EXERCISES') || message.includes('409');
+      const isAssociated = message.includes('HAS_ASSOCIATED_EXERCISES') || message.includes('409');
       setDeleteErrors((prev) => ({
         ...prev,
         [category.id]: isAssociated
-          ? 'Cannot delete: category has associated exercises'
-          : message || 'Failed to delete category',
+          ? 'No se puede eliminar: la categoría tiene ejercicios asociados'
+          : message || 'Error al eliminar la categoría',
       }));
     }
   }
@@ -153,34 +152,28 @@ export default function AdminCategoriesPage() {
   return (
     <div style={styles.container}>
       <div style={styles.inner}>
-        {/* Header */}
+        {/* Encabezado */}
         <div style={styles.header}>
-          <h1 style={styles.title}>Categories</h1>
+          <h1 style={styles.title}>🏷️ Categorías</h1>
           <button type="button" style={styles.primaryButton} onClick={openCreateModal}>
-            Create category
+            + Crear categoría
           </button>
         </div>
 
-        {/* Load error */}
-        {loadError && (
-          <div style={styles.errorBanner} role="alert">
-            {loadError}
-          </div>
-        )}
+        {loadError && <div style={styles.errorBanner} role="alert">{loadError}</div>}
 
-        {/* Table */}
         {isLoading ? (
-          <p style={styles.statusText}>Loading categories…</p>
+          <p style={styles.statusText}>Cargando categorías…</p>
         ) : categories.length === 0 && !loadError ? (
-          <p style={styles.statusText}>No categories found. Create one to get started.</p>
+          <p style={styles.statusText}>No hay categorías. Crea una para comenzar.</p>
         ) : (
           <div style={styles.tableWrapper}>
-            <table style={styles.table} aria-label="Categories table">
+            <table style={styles.table} aria-label="Tabla de categorías">
               <thead>
-                <tr>
+                <tr style={styles.thead}>
                   <th style={styles.th}>ID</th>
-                  <th style={styles.th}>Name</th>
-                  <th style={{ ...styles.th, textAlign: 'right' }}>Actions</th>
+                  <th style={styles.th}>Nombre</th>
+                  <th style={{ ...styles.th, textAlign: 'right' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -190,22 +183,10 @@ export default function AdminCategoriesPage() {
                       <td style={styles.td}>{cat.id}</td>
                       <td style={styles.td}>{cat.name}</td>
                       <td style={{ ...styles.td, textAlign: 'right' }}>
-                        <button
-                          type="button"
-                          style={styles.editButton}
-                          onClick={() => openEditModal(cat)}
-                          aria-label={`Edit category ${cat.name}`}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          style={styles.deleteButton}
-                          onClick={() => handleDelete(cat)}
-                          aria-label={`Delete category ${cat.name}`}
-                        >
-                          Delete
-                        </button>
+                        <button type="button" style={styles.editButton} onClick={() => openEditModal(cat)}
+                          aria-label={`Editar categoría ${cat.name}`}>Editar</button>
+                        <button type="button" style={styles.deleteButton} onClick={() => handleDelete(cat)}
+                          aria-label={`Eliminar categoría ${cat.name}`}>Eliminar</button>
                       </td>
                     </tr>
                     {deleteErrors[cat.id] && (
@@ -225,70 +206,31 @@ export default function AdminCategoriesPage() {
 
       {/* Modal */}
       {modal.open && (
-        <div
-          style={styles.overlay}
-          role="dialog"
-          aria-modal="true"
-          aria-label={modal.mode === 'create' ? 'Create category' : 'Edit category'}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) closeModal();
-          }}
-        >
+        <div style={styles.overlay} role="dialog" aria-modal="true"
+          aria-label={modal.mode === 'create' ? 'Crear categoría' : 'Editar categoría'}
+          onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}>
           <div style={styles.modalCard}>
             <h2 style={styles.modalTitle}>
-              {modal.mode === 'create' ? 'Create category' : 'Edit category'}
+              {modal.mode === 'create' ? '+ Crear categoría' : '✏️ Editar categoría'}
             </h2>
-
-            {submitError && (
-              <div style={styles.formError} role="alert">
-                {submitError}
-              </div>
-            )}
-
+            {submitError && <div style={styles.formError} role="alert">{submitError}</div>}
             <form onSubmit={handleSubmit} noValidate>
               <div style={styles.field}>
-                <label htmlFor="category-name" style={styles.label}>
-                  Name
-                </label>
-                <input
-                  id="category-name"
-                  type="text"
-                  value={nameInput}
-                  onChange={(e) => {
-                    setNameInput(e.target.value);
-                    if (nameError) setNameError(null);
-                  }}
-                  style={{
-                    ...styles.input,
-                    ...(nameError ? styles.inputError : {}),
-                  }}
-                  disabled={isSubmitting}
-                  autoFocus
-                />
-                {nameError && (
-                  <span style={styles.fieldError} role="alert">
-                    {nameError}
-                  </span>
-                )}
+                <label htmlFor="category-name" style={styles.label}>Nombre</label>
+                <input id="category-name" type="text" value={nameInput}
+                  onChange={(e) => { setNameInput(e.target.value); if (nameError) setNameError(null); }}
+                  style={{ ...styles.input, ...(nameError ? styles.inputError : {}) }}
+                  disabled={isSubmitting} autoFocus />
+                {nameError && <span style={styles.fieldError} role="alert">{nameError}</span>}
               </div>
-
               <div style={styles.modalActions}>
-                <button
-                  type="button"
-                  style={styles.cancelButton}
-                  onClick={closeModal}
-                  disabled={isSubmitting}
-                >
-                  Cancel
+                <button type="button" style={styles.cancelButton} onClick={closeModal} disabled={isSubmitting}>
+                  Cancelar
                 </button>
                 <button type="submit" style={styles.primaryButton} disabled={isSubmitting}>
                   {isSubmitting
-                    ? modal.mode === 'create'
-                      ? 'Creating…'
-                      : 'Saving…'
-                    : modal.mode === 'create'
-                      ? 'Create'
-                      : 'Save'}
+                    ? (modal.mode === 'create' ? 'Creando…' : 'Guardando…')
+                    : (modal.mode === 'create' ? 'Crear' : 'Guardar')}
                 </button>
               </div>
             </form>
@@ -302,182 +244,31 @@ export default function AdminCategoriesPage() {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles: Record<string, React.CSSProperties> = {
-  container: {
-    minHeight: '100vh',
-    backgroundColor: '#f5f5f5',
-    padding: '3rem 1rem',
-  },
-  inner: {
-    maxWidth: '800px',
-    margin: '0 auto',
-  },
-  header: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: '1.5rem',
-  },
-  title: {
-    margin: 0,
-    fontSize: '1.75rem',
-    fontWeight: 600,
-    color: '#111827',
-  },
-  statusText: {
-    color: '#6b7280',
-    textAlign: 'center',
-    padding: '2rem 0',
-  },
-  errorBanner: {
-    backgroundColor: '#fef2f2',
-    border: '1px solid #fca5a5',
-    borderRadius: '6px',
-    color: '#dc2626',
-    fontSize: '0.9rem',
-    padding: '0.75rem 1rem',
-    marginBottom: '1rem',
-  },
-  tableWrapper: {
-    backgroundColor: '#fff',
-    border: '1px solid #e5e7eb',
-    borderRadius: '8px',
-    overflow: 'hidden',
-  },
-  table: {
-    borderCollapse: 'collapse',
-    width: '100%',
-  },
-  th: {
-    backgroundColor: '#f9fafb',
-    borderBottom: '1px solid #e5e7eb',
-    color: '#6b7280',
-    fontSize: '0.75rem',
-    fontWeight: 600,
-    letterSpacing: '0.05em',
-    padding: '0.75rem 1rem',
-    textAlign: 'left',
-    textTransform: 'uppercase',
-  },
-  tr: {
-    borderBottom: '1px solid #f3f4f6',
-  },
-  td: {
-    color: '#111827',
-    fontSize: '0.9rem',
-    padding: '0.75rem 1rem',
-    verticalAlign: 'middle',
-  },
-  rowError: {
-    backgroundColor: '#fef2f2',
-    color: '#dc2626',
-    fontSize: '0.8rem',
-    padding: '0.4rem 1rem 0.6rem',
-    borderBottom: '1px solid #f3f4f6',
-  },
-  primaryButton: {
-    backgroundColor: '#2563eb',
-    border: 'none',
-    borderRadius: '4px',
-    color: '#fff',
-    cursor: 'pointer',
-    fontSize: '0.875rem',
-    fontWeight: 500,
-    padding: '0.5rem 1rem',
-  },
-  editButton: {
-    backgroundColor: 'transparent',
-    border: '1px solid #d1d5db',
-    borderRadius: '4px',
-    color: '#374151',
-    cursor: 'pointer',
-    fontSize: '0.8rem',
-    marginRight: '0.5rem',
-    padding: '0.3rem 0.75rem',
-  },
-  deleteButton: {
-    backgroundColor: 'transparent',
-    border: '1px solid #dc2626',
-    borderRadius: '4px',
-    color: '#dc2626',
-    cursor: 'pointer',
-    fontSize: '0.8rem',
-    padding: '0.3rem 0.75rem',
-  },
-  // ── Modal
-  overlay: {
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    bottom: 0,
-    display: 'flex',
-    justifyContent: 'center',
-    left: 0,
-    position: 'fixed',
-    right: 0,
-    top: 0,
-    zIndex: 1000,
-  },
-  modalCard: {
-    backgroundColor: '#fff',
-    borderRadius: '8px',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-    padding: '2rem',
-    width: '100%',
-    maxWidth: '420px',
-  },
-  modalTitle: {
-    margin: '0 0 1.25rem',
-    fontSize: '1.25rem',
-    fontWeight: 600,
-    color: '#111827',
-  },
-  formError: {
-    backgroundColor: '#fef2f2',
-    border: '1px solid #fca5a5',
-    borderRadius: '4px',
-    color: '#dc2626',
-    fontSize: '0.875rem',
-    marginBottom: '1rem',
-    padding: '0.75rem',
-  },
-  field: {
-    display: 'flex',
-    flexDirection: 'column',
-    marginBottom: '1rem',
-  },
-  label: {
-    fontSize: '0.875rem',
-    fontWeight: 500,
-    marginBottom: '0.25rem',
-    color: '#374151',
-  },
-  input: {
-    border: '1px solid #d1d5db',
-    borderRadius: '4px',
-    fontSize: '1rem',
-    outline: 'none',
-    padding: '0.5rem 0.75rem',
-  },
-  inputError: {
-    borderColor: '#dc2626',
-  },
-  fieldError: {
-    color: '#dc2626',
-    fontSize: '0.8rem',
-    marginTop: '0.25rem',
-  },
-  modalActions: {
-    display: 'flex',
-    gap: '0.75rem',
-    justifyContent: 'flex-end',
-    marginTop: '1.5rem',
-  },
-  cancelButton: {
-    backgroundColor: 'transparent',
-    border: '1px solid #d1d5db',
-    borderRadius: '4px',
-    color: '#374151',
-    cursor: 'pointer',
-    fontSize: '0.875rem',
-    padding: '0.5rem 1rem',
-  },
+  container:    { minHeight: '100vh', backgroundColor: '#f8faff', padding: '3rem 1rem' },
+  inner:        { maxWidth: '800px', margin: '0 auto' },
+  header:       { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' },
+  title:        { margin: 0, fontSize: '1.75rem', fontWeight: 800, color: '#1e1b4b' },
+  statusText:   { color: '#9ca3af', textAlign: 'center', padding: '2rem 0' },
+  errorBanner:  { backgroundColor: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '6px', color: '#dc2626', fontSize: '0.9rem', padding: '0.75rem 1rem', marginBottom: '1rem' },
+  tableWrapper: { backgroundColor: '#fff', border: '1px solid #e0e7ff', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(99,102,241,0.07)' },
+  table:        { borderCollapse: 'collapse', width: '100%' },
+  thead:        { background: 'linear-gradient(90deg, #ede9fe, #e0e7ff)' },
+  th:           { color: '#4f46e5', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em', padding: '0.75rem 1rem', textAlign: 'left', textTransform: 'uppercase', borderBottom: '2px solid #e0e7ff' },
+  tr:           { borderBottom: '1px solid #f3f4f6' },
+  td:           { color: '#111827', fontSize: '0.9rem', padding: '0.75rem 1rem', verticalAlign: 'middle' },
+  rowError:     { backgroundColor: '#fef2f2', color: '#dc2626', fontSize: '0.8rem', padding: '0.4rem 1rem 0.6rem', borderBottom: '1px solid #f3f4f6' },
+  primaryButton:{ background: 'linear-gradient(90deg, #4f46e5, #7c3aed)', border: 'none', borderRadius: '6px', color: '#fff', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 700, padding: '0.5rem 1rem', boxShadow: '0 2px 6px rgba(99,102,241,0.3)' },
+  editButton:   { backgroundColor: '#fff', border: '1.5px solid #c4b5fd', borderRadius: '4px', color: '#4f46e5', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, marginRight: '0.5rem', padding: '0.3rem 0.75rem' },
+  deleteButton: { backgroundColor: '#fff', border: '1.5px solid #fca5a5', borderRadius: '4px', color: '#dc2626', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, padding: '0.3rem 0.75rem' },
+  overlay:      { alignItems: 'center', backgroundColor: 'rgba(30,27,75,0.5)', bottom: 0, display: 'flex', justifyContent: 'center', left: 0, position: 'fixed', right: 0, top: 0, zIndex: 1000 },
+  modalCard:    { backgroundColor: '#fff', borderRadius: '10px', boxShadow: '0 8px 32px rgba(99,102,241,0.2)', padding: '2rem', width: '100%', maxWidth: '420px', border: '1px solid #e0e7ff' },
+  modalTitle:   { margin: '0 0 1.25rem', fontSize: '1.25rem', fontWeight: 800, color: '#1e1b4b' },
+  formError:    { backgroundColor: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '6px', color: '#dc2626', fontSize: '0.875rem', marginBottom: '1rem', padding: '0.75rem' },
+  field:        { display: 'flex', flexDirection: 'column', marginBottom: '1rem' },
+  label:        { fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.3rem', color: '#374151' },
+  input:        { backgroundColor: '#f9fafb', border: '1.5px solid #d1d5db', borderRadius: '6px', fontSize: '1rem', outline: 'none', padding: '0.55rem 0.75rem', color: '#111827' },
+  inputError:   { borderColor: '#ef4444', backgroundColor: '#fff5f5' },
+  fieldError:   { color: '#ef4444', fontSize: '0.8rem', marginTop: '0.25rem' },
+  modalActions: { display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '1.5rem' },
+  cancelButton: { backgroundColor: '#fff', border: '1.5px solid #d1d5db', borderRadius: '6px', color: '#374151', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600, padding: '0.5rem 1rem' },
 };

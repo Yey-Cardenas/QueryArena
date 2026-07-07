@@ -64,27 +64,14 @@ const emptyForm: FormFields = {
 
 function validateForm(fields: FormFields): FormErrors {
   const errors: FormErrors = {};
-
-  if (!fields.title.trim()) {
-    errors.title = 'Title is required';
-  }
-  if (!fields.description.trim()) {
-    errors.description = 'Description is required';
-  }
-  if (!fields.expectedSolution.trim()) {
-    errors.expectedSolution = 'Expected solution is required';
-  }
+  if (!fields.title.trim()) errors.title = 'El título es requerido';
+  if (!fields.description.trim()) errors.description = 'La descripción es requerida';
+  if (!fields.expectedSolution.trim()) errors.expectedSolution = 'La solución esperada es requerida';
   const scoreNum = Number(fields.score);
-  if (!fields.score.trim() || isNaN(scoreNum) || scoreNum <= 0 || !Number.isInteger(scoreNum)) {
-    errors.score = 'Score must be a positive integer';
-  }
-  if (!fields.levelId) {
-    errors.levelId = 'Level is required';
-  }
-  if (!fields.categoryId) {
-    errors.categoryId = 'Category is required';
-  }
-
+  if (!fields.score.trim() || isNaN(scoreNum) || scoreNum <= 0 || !Number.isInteger(scoreNum))
+    errors.score = 'El puntaje debe ser un número entero positivo';
+  if (!fields.levelId) errors.levelId = 'El nivel es requerido';
+  if (!fields.categoryId) errors.categoryId = 'La categoría es requerida';
   return errors;
 }
 
@@ -244,7 +231,7 @@ export default function AdminExercisesPage() {
       }
       closeModal();
     } catch (err: unknown) {
-      setSubmitError(err instanceof Error ? err.message : 'Operation failed');
+      setSubmitError(err instanceof Error ? err.message : 'Error en la operación');
     } finally {
       setIsSubmitting(false);
     }
@@ -264,13 +251,12 @@ export default function AdminExercisesPage() {
       setExercises((prev) => prev.filter((ex) => ex.id !== exercise.id));
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : '';
-      const hasAttempts =
-        message.includes('HAS_ASSOCIATED_ATTEMPTS') || message.includes('409');
+      const hasAttempts = message.includes('HAS_ASSOCIATED_ATTEMPTS') || message.includes('409');
       setDeleteErrors((prev) => ({
         ...prev,
         [exercise.id]: hasAttempts
-          ? 'Cannot delete: exercise has associated attempts'
-          : message || 'Failed to delete exercise',
+          ? 'No se puede eliminar: el ejercicio tiene intentos registrados'
+          : message || 'Error al eliminar el ejercicio',
       }));
     }
   }
@@ -282,38 +268,32 @@ export default function AdminExercisesPage() {
   return (
     <div style={styles.container}>
       <div style={styles.inner}>
-        {/* Header */}
+        {/* Encabezado */}
         <div style={styles.header}>
-          <h1 style={styles.title}>Exercises</h1>
+          <h1 style={styles.title}>📝 Ejercicios</h1>
           <button type="button" style={styles.primaryButton} onClick={openCreateModal}>
-            + Create exercise
+            + Crear ejercicio
           </button>
         </div>
 
-        {/* Load error */}
-        {loadError && (
-          <div style={styles.errorBanner} role="alert">
-            {loadError}
-          </div>
-        )}
+        {loadError && <div style={styles.errorBanner} role="alert">{loadError}</div>}
 
-        {/* Table */}
         {isLoading ? (
-          <p style={styles.statusText}>Loading exercises…</p>
+          <p style={styles.statusText}>Cargando ejercicios…</p>
         ) : exercises.length === 0 && !loadError ? (
-          <p style={styles.statusText}>No exercises found. Create one to get started.</p>
+          <p style={styles.statusText}>No hay ejercicios. Crea uno para comenzar.</p>
         ) : (
           <div style={styles.tableWrapper}>
-            <table style={styles.table} aria-label="Exercises table">
+            <table style={styles.table} aria-label="Tabla de ejercicios">
               <thead>
-                <tr>
-                  <th style={styles.th}>Title</th>
-                  <th style={styles.th}>Level</th>
-                  <th style={styles.th}>Category</th>
-                  <th style={styles.th}>Score</th>
-                  <th style={styles.th}>Status</th>
-                  <th style={styles.th}>Created At</th>
-                  <th style={{ ...styles.th, textAlign: 'right' }}>Actions</th>
+                <tr style={styles.thead}>
+                  <th style={styles.th}>Título</th>
+                  <th style={styles.th}>Nivel</th>
+                  <th style={styles.th}>Categoría</th>
+                  <th style={styles.th}>Puntaje</th>
+                  <th style={styles.th}>Estado</th>
+                  <th style={styles.th}>Creado</th>
+                  <th style={{ ...styles.th, textAlign: 'right' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -325,32 +305,16 @@ export default function AdminExercisesPage() {
                       <td style={styles.td}>{exercise.category.name}</td>
                       <td style={styles.td}>{exercise.score}</td>
                       <td style={styles.td}>
-                        <span
-                          style={
-                            exercise.isActive ? styles.badgeActive : styles.badgeInactive
-                          }
-                        >
-                          {exercise.isActive ? 'Active' : 'Inactive'}
+                        <span style={exercise.isActive ? styles.badgeActive : styles.badgeInactive}>
+                          {exercise.isActive ? 'Activo' : 'Inactivo'}
                         </span>
                       </td>
                       <td style={styles.td}>{formatDate(exercise.createdAt)}</td>
                       <td style={{ ...styles.td, textAlign: 'right', whiteSpace: 'nowrap' }}>
-                        <button
-                          type="button"
-                          style={styles.editButton}
-                          onClick={() => openEditModal(exercise)}
-                          aria-label={`Edit exercise ${exercise.title}`}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          style={styles.deleteButton}
-                          onClick={() => handleDelete(exercise)}
-                          aria-label={`Delete exercise ${exercise.title}`}
-                        >
-                          Delete
-                        </button>
+                        <button type="button" style={styles.editButton} onClick={() => openEditModal(exercise)}
+                          aria-label={`Editar ejercicio ${exercise.title}`}>Editar</button>
+                        <button type="button" style={styles.deleteButton} onClick={() => handleDelete(exercise)}
+                          aria-label={`Eliminar ejercicio ${exercise.title}`}>Eliminar</button>
                       </td>
                     </tr>
                     {deleteErrors[exercise.id] && (
@@ -370,221 +334,108 @@ export default function AdminExercisesPage() {
 
       {/* Modal */}
       {modal.open && (
-        <div
-          style={styles.overlay}
-          role="dialog"
-          aria-modal="true"
-          aria-label={modal.mode === 'create' ? 'Create exercise' : 'Edit exercise'}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) closeModal();
-          }}
-        >
+        <div style={styles.overlay} role="dialog" aria-modal="true"
+          aria-label={modal.mode === 'create' ? 'Crear ejercicio' : 'Editar ejercicio'}
+          onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}>
           <div style={styles.modalCard}>
             <h2 style={styles.modalTitle}>
-              {modal.mode === 'create' ? 'Create exercise' : 'Edit exercise'}
+              {modal.mode === 'create' ? '+ Crear ejercicio' : '✏️ Editar ejercicio'}
             </h2>
 
-            {submitError && (
-              <div style={styles.formError} role="alert">
-                {submitError}
-              </div>
-            )}
+            {submitError && <div style={styles.formError} role="alert">{submitError}</div>}
 
             <form onSubmit={handleSubmit} noValidate>
-              {/* Title */}
+              {/* Título */}
               <div style={styles.field}>
                 <label htmlFor="ex-title" style={styles.label}>
-                  Title <span style={styles.required}>*</span>
+                  Título <span style={styles.required}>*</span>
                 </label>
-                <input
-                  id="ex-title"
-                  type="text"
-                  autoComplete="off"
-                  autoFocus
-                  value={fields.title}
-                  onChange={(e) => handleFieldChange('title', e.target.value)}
+                <input id="ex-title" type="text" autoComplete="off" autoFocus
+                  value={fields.title} onChange={(e) => handleFieldChange('title', e.target.value)}
                   style={{ ...styles.input, ...(fieldErrors.title ? styles.inputError : {}) }}
-                  disabled={isSubmitting}
-                  aria-describedby={fieldErrors.title ? 'ex-title-error' : undefined}
-                />
-                {fieldErrors.title && (
-                  <span id="ex-title-error" style={styles.fieldError}>
-                    {fieldErrors.title}
-                  </span>
-                )}
+                  disabled={isSubmitting} />
+                {fieldErrors.title && <span style={styles.fieldError}>{fieldErrors.title}</span>}
               </div>
 
-              {/* Description */}
+              {/* Descripción */}
               <div style={styles.field}>
                 <label htmlFor="ex-description" style={styles.label}>
-                  Description / Statement <span style={styles.required}>*</span>
+                  Descripción / Enunciado <span style={styles.required}>*</span>
                 </label>
-                <textarea
-                  id="ex-description"
-                  rows={4}
-                  value={fields.description}
+                <textarea id="ex-description" rows={4} value={fields.description}
                   onChange={(e) => handleFieldChange('description', e.target.value)}
-                  style={{
-                    ...styles.input,
-                    resize: 'vertical',
-                    ...(fieldErrors.description ? styles.inputError : {}),
-                  }}
-                  disabled={isSubmitting}
-                  aria-describedby={fieldErrors.description ? 'ex-description-error' : undefined}
-                />
-                {fieldErrors.description && (
-                  <span id="ex-description-error" style={styles.fieldError}>
-                    {fieldErrors.description}
-                  </span>
-                )}
+                  style={{ ...styles.input, resize: 'vertical', ...(fieldErrors.description ? styles.inputError : {}) }}
+                  disabled={isSubmitting} />
+                {fieldErrors.description && <span style={styles.fieldError}>{fieldErrors.description}</span>}
               </div>
 
-              {/* Expected solution */}
+              {/* Solución esperada */}
               <div style={styles.field}>
                 <label htmlFor="ex-solution" style={styles.label}>
-                  Expected SQL Solution <span style={styles.required}>*</span>
+                  Solución SQL esperada <span style={styles.required}>*</span>
                 </label>
-                <textarea
-                  id="ex-solution"
-                  rows={4}
-                  value={fields.expectedSolution}
+                <textarea id="ex-solution" rows={4} value={fields.expectedSolution}
                   onChange={(e) => handleFieldChange('expectedSolution', e.target.value)}
-                  style={{
-                    ...styles.input,
-                    fontFamily: 'monospace',
-                    resize: 'vertical',
-                    ...(fieldErrors.expectedSolution ? styles.inputError : {}),
-                  }}
-                  disabled={isSubmitting}
-                  aria-describedby={
-                    fieldErrors.expectedSolution ? 'ex-solution-error' : undefined
-                  }
-                />
-                {fieldErrors.expectedSolution && (
-                  <span id="ex-solution-error" style={styles.fieldError}>
-                    {fieldErrors.expectedSolution}
-                  </span>
-                )}
+                  style={{ ...styles.input, fontFamily: 'monospace', resize: 'vertical', ...(fieldErrors.expectedSolution ? styles.inputError : {}) }}
+                  disabled={isSubmitting} />
+                {fieldErrors.expectedSolution && <span style={styles.fieldError}>{fieldErrors.expectedSolution}</span>}
               </div>
 
-              {/* Score + Level + Category in a row */}
+              {/* Puntaje + Nivel + Categoría */}
               <div style={styles.rowFields}>
-                {/* Score */}
                 <div style={{ ...styles.field, flex: '0 0 90px' }}>
-                  <label htmlFor="ex-score" style={styles.label}>
-                    Score <span style={styles.required}>*</span>
-                  </label>
-                  <input
-                    id="ex-score"
-                    type="number"
-                    min={1}
-                    step={1}
-                    value={fields.score}
+                  <label htmlFor="ex-score" style={styles.label}>Puntaje <span style={styles.required}>*</span></label>
+                  <input id="ex-score" type="number" min={1} step={1} value={fields.score}
                     onChange={(e) => handleFieldChange('score', e.target.value)}
                     style={{ ...styles.input, ...(fieldErrors.score ? styles.inputError : {}) }}
-                    disabled={isSubmitting}
-                    aria-describedby={fieldErrors.score ? 'ex-score-error' : undefined}
-                  />
-                  {fieldErrors.score && (
-                    <span id="ex-score-error" style={styles.fieldError}>
-                      {fieldErrors.score}
-                    </span>
-                  )}
+                    disabled={isSubmitting} />
+                  {fieldErrors.score && <span style={styles.fieldError}>{fieldErrors.score}</span>}
                 </div>
-
-                {/* Level */}
                 <div style={{ ...styles.field, flex: 1 }}>
-                  <label htmlFor="ex-level" style={styles.label}>
-                    Level <span style={styles.required}>*</span>
-                  </label>
-                  <select
-                    id="ex-level"
-                    value={fields.levelId}
+                  <label htmlFor="ex-level" style={styles.label}>Nivel <span style={styles.required}>*</span></label>
+                  <select id="ex-level" value={fields.levelId}
                     onChange={(e) => handleFieldChange('levelId', e.target.value)}
                     style={{ ...styles.input, ...(fieldErrors.levelId ? styles.inputError : {}) }}
-                    disabled={isSubmitting}
-                    aria-describedby={fieldErrors.levelId ? 'ex-level-error' : undefined}
-                  >
-                    <option value="">Select level</option>
-                    {levels.map((l) => (
-                      <option key={l.id} value={String(l.id)}>
-                        {l.name}
-                      </option>
-                    ))}
+                    disabled={isSubmitting}>
+                    <option value="">Seleccionar nivel</option>
+                    {levels.map((l) => <option key={l.id} value={String(l.id)}>{l.name}</option>)}
                   </select>
-                  {fieldErrors.levelId && (
-                    <span id="ex-level-error" style={styles.fieldError}>
-                      {fieldErrors.levelId}
-                    </span>
-                  )}
+                  {fieldErrors.levelId && <span style={styles.fieldError}>{fieldErrors.levelId}</span>}
                 </div>
-
-                {/* Category */}
                 <div style={{ ...styles.field, flex: 1 }}>
-                  <label htmlFor="ex-category" style={styles.label}>
-                    Category <span style={styles.required}>*</span>
-                  </label>
-                  <select
-                    id="ex-category"
-                    value={fields.categoryId}
+                  <label htmlFor="ex-category" style={styles.label}>Categoría <span style={styles.required}>*</span></label>
+                  <select id="ex-category" value={fields.categoryId}
                     onChange={(e) => handleFieldChange('categoryId', e.target.value)}
-                    style={{
-                      ...styles.input,
-                      ...(fieldErrors.categoryId ? styles.inputError : {}),
-                    }}
-                    disabled={isSubmitting}
-                    aria-describedby={fieldErrors.categoryId ? 'ex-category-error' : undefined}
-                  >
-                    <option value="">Select category</option>
-                    {categories.map((c) => (
-                      <option key={c.id} value={String(c.id)}>
-                        {c.name}
-                      </option>
-                    ))}
+                    style={{ ...styles.input, ...(fieldErrors.categoryId ? styles.inputError : {}) }}
+                    disabled={isSubmitting}>
+                    <option value="">Seleccionar categoría</option>
+                    {categories.map((c) => <option key={c.id} value={String(c.id)}>{c.name}</option>)}
                   </select>
-                  {fieldErrors.categoryId && (
-                    <span id="ex-category-error" style={styles.fieldError}>
-                      {fieldErrors.categoryId}
-                    </span>
-                  )}
+                  {fieldErrors.categoryId && <span style={styles.fieldError}>{fieldErrors.categoryId}</span>}
                 </div>
               </div>
 
-              {/* Active toggle (edit only) */}
+              {/* Activo (solo edición) */}
               {modal.mode === 'edit' && (
                 <div style={styles.checkboxField}>
-                  <input
-                    id="ex-active"
-                    type="checkbox"
-                    checked={fields.isActive}
+                  <input id="ex-active" type="checkbox" checked={fields.isActive}
                     onChange={(e) => handleFieldChange('isActive', e.target.checked)}
-                    disabled={isSubmitting}
-                    style={{ marginRight: '0.5rem' }}
-                  />
+                    disabled={isSubmitting} style={{ marginRight: '0.5rem' }} />
                   <label htmlFor="ex-active" style={styles.label}>
-                    Active (visible to students)
+                    Activo (visible para los estudiantes)
                   </label>
                 </div>
               )}
 
-              {/* Actions */}
+              {/* Acciones */}
               <div style={styles.modalActions}>
-                <button
-                  type="button"
-                  style={styles.cancelButton}
-                  onClick={closeModal}
-                  disabled={isSubmitting}
-                >
-                  Cancel
+                <button type="button" style={styles.cancelButton} onClick={closeModal} disabled={isSubmitting}>
+                  Cancelar
                 </button>
                 <button type="submit" style={styles.primaryButton} disabled={isSubmitting}>
                   {isSubmitting
-                    ? modal.mode === 'create'
-                      ? 'Creating…'
-                      : 'Saving…'
-                    : modal.mode === 'create'
-                      ? 'Create'
-                      : 'Save'}
+                    ? (modal.mode === 'create' ? 'Creando…' : 'Guardando…')
+                    : (modal.mode === 'create' ? 'Crear' : 'Guardar')}
                 </button>
               </div>
             </form>
@@ -598,219 +449,36 @@ export default function AdminExercisesPage() {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles: Record<string, React.CSSProperties> = {
-  container: {
-    minHeight: '100vh',
-    backgroundColor: '#f5f5f5',
-    padding: '3rem 1rem',
-  },
-  inner: {
-    maxWidth: '1100px',
-    margin: '0 auto',
-  },
-  header: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: '1.5rem',
-  },
-  title: {
-    margin: 0,
-    fontSize: '1.75rem',
-    fontWeight: 600,
-    color: '#111827',
-  },
-  statusText: {
-    color: '#6b7280',
-    textAlign: 'center',
-    padding: '2rem 0',
-  },
-  errorBanner: {
-    backgroundColor: '#fef2f2',
-    border: '1px solid #fca5a5',
-    borderRadius: '6px',
-    color: '#dc2626',
-    fontSize: '0.9rem',
-    padding: '0.75rem 1rem',
-    marginBottom: '1rem',
-  },
-  tableWrapper: {
-    backgroundColor: '#fff',
-    border: '1px solid #e5e7eb',
-    borderRadius: '8px',
-    overflow: 'auto',
-  },
-  table: {
-    borderCollapse: 'collapse',
-    width: '100%',
-    minWidth: '700px',
-  },
-  th: {
-    backgroundColor: '#f9fafb',
-    borderBottom: '1px solid #e5e7eb',
-    color: '#6b7280',
-    fontSize: '0.75rem',
-    fontWeight: 600,
-    letterSpacing: '0.05em',
-    padding: '0.75rem 1rem',
-    textAlign: 'left',
-    textTransform: 'uppercase',
-    whiteSpace: 'nowrap',
-  },
-  tr: {
-    borderBottom: '1px solid #f3f4f6',
-  },
-  td: {
-    color: '#111827',
-    fontSize: '0.9rem',
-    padding: '0.75rem 1rem',
-    verticalAlign: 'middle',
-  },
-  rowError: {
-    backgroundColor: '#fef2f2',
-    color: '#dc2626',
-    fontSize: '0.8rem',
-    padding: '0.4rem 1rem 0.6rem',
-    borderBottom: '1px solid #f3f4f6',
-  },
-  badgeActive: {
-    backgroundColor: '#d1fae5',
-    borderRadius: '9999px',
-    color: '#065f46',
-    fontSize: '0.75rem',
-    fontWeight: 600,
-    padding: '0.15rem 0.6rem',
-  },
-  badgeInactive: {
-    backgroundColor: '#f3f4f6',
-    borderRadius: '9999px',
-    color: '#6b7280',
-    fontSize: '0.75rem',
-    fontWeight: 600,
-    padding: '0.15rem 0.6rem',
-  },
-  primaryButton: {
-    backgroundColor: '#2563eb',
-    border: 'none',
-    borderRadius: '4px',
-    color: '#fff',
-    cursor: 'pointer',
-    fontSize: '0.875rem',
-    fontWeight: 500,
-    padding: '0.5rem 1rem',
-  },
-  editButton: {
-    backgroundColor: 'transparent',
-    border: '1px solid #d1d5db',
-    borderRadius: '4px',
-    color: '#374151',
-    cursor: 'pointer',
-    fontSize: '0.8rem',
-    marginRight: '0.5rem',
-    padding: '0.3rem 0.75rem',
-  },
-  deleteButton: {
-    backgroundColor: 'transparent',
-    border: '1px solid #dc2626',
-    borderRadius: '4px',
-    color: '#dc2626',
-    cursor: 'pointer',
-    fontSize: '0.8rem',
-    padding: '0.3rem 0.75rem',
-  },
-  // ── Modal
-  overlay: {
-    alignItems: 'flex-start',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    bottom: 0,
-    display: 'flex',
-    justifyContent: 'center',
-    left: 0,
-    overflowY: 'auto',
-    paddingBlock: '2rem',
-    position: 'fixed',
-    right: 0,
-    top: 0,
-    zIndex: 1000,
-  },
-  modalCard: {
-    backgroundColor: '#fff',
-    borderRadius: '8px',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-    padding: '2rem',
-    width: '100%',
-    maxWidth: '640px',
-    alignSelf: 'flex-start',
-  },
-  modalTitle: {
-    margin: '0 0 1.25rem',
-    fontSize: '1.25rem',
-    fontWeight: 600,
-    color: '#111827',
-  },
-  formError: {
-    backgroundColor: '#fef2f2',
-    border: '1px solid #fca5a5',
-    borderRadius: '4px',
-    color: '#dc2626',
-    fontSize: '0.875rem',
-    marginBottom: '1rem',
-    padding: '0.75rem',
-  },
-  field: {
-    display: 'flex',
-    flexDirection: 'column',
-    marginBottom: '1rem',
-  },
-  rowFields: {
-    display: 'flex',
-    gap: '0.75rem',
-    flexWrap: 'wrap',
-  },
-  checkboxField: {
-    alignItems: 'center',
-    display: 'flex',
-    marginBottom: '1rem',
-  },
-  label: {
-    fontSize: '0.875rem',
-    fontWeight: 500,
-    marginBottom: '0.25rem',
-    color: '#374151',
-  },
-  required: {
-    color: '#dc2626',
-    marginLeft: '2px',
-  },
-  input: {
-    border: '1px solid #d1d5db',
-    borderRadius: '4px',
-    fontSize: '0.95rem',
-    outline: 'none',
-    padding: '0.5rem 0.75rem',
-    width: '100%',
-    boxSizing: 'border-box',
-  },
-  inputError: {
-    borderColor: '#dc2626',
-  },
-  fieldError: {
-    color: '#dc2626',
-    fontSize: '0.8rem',
-    marginTop: '0.25rem',
-  },
-  modalActions: {
-    display: 'flex',
-    gap: '0.75rem',
-    justifyContent: 'flex-end',
-    marginTop: '1.5rem',
-  },
-  cancelButton: {
-    backgroundColor: 'transparent',
-    border: '1px solid #d1d5db',
-    borderRadius: '4px',
-    color: '#374151',
-    cursor: 'pointer',
-    fontSize: '0.875rem',
-    padding: '0.5rem 1rem',
-  },
+  container:    { minHeight: '100vh', backgroundColor: '#f8faff', padding: '3rem 1rem' },
+  inner:        { maxWidth: '1100px', margin: '0 auto' },
+  header:       { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' },
+  title:        { margin: 0, fontSize: '1.75rem', fontWeight: 800, color: '#1e1b4b' },
+  statusText:   { color: '#9ca3af', textAlign: 'center', padding: '2rem 0' },
+  errorBanner:  { backgroundColor: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '6px', color: '#dc2626', fontSize: '0.9rem', padding: '0.75rem 1rem', marginBottom: '1rem' },
+  tableWrapper: { backgroundColor: '#fff', border: '1px solid #e0e7ff', borderRadius: '10px', overflow: 'auto', boxShadow: '0 2px 8px rgba(99,102,241,0.07)' },
+  table:        { borderCollapse: 'collapse', width: '100%', minWidth: '700px' },
+  thead:        { background: 'linear-gradient(90deg, #ede9fe, #e0e7ff)' },
+  th:           { color: '#4f46e5', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em', padding: '0.75rem 1rem', textAlign: 'left', textTransform: 'uppercase', borderBottom: '2px solid #e0e7ff', whiteSpace: 'nowrap' },
+  tr:           { borderBottom: '1px solid #f3f4f6' },
+  td:           { color: '#111827', fontSize: '0.9rem', padding: '0.75rem 1rem', verticalAlign: 'middle' },
+  rowError:     { backgroundColor: '#fef2f2', color: '#dc2626', fontSize: '0.8rem', padding: '0.4rem 1rem 0.6rem', borderBottom: '1px solid #f3f4f6' },
+  badgeActive:  { backgroundColor: '#dcfce7', borderRadius: '9999px', color: '#15803d', fontSize: '0.75rem', fontWeight: 700, padding: '0.15rem 0.6rem' },
+  badgeInactive:{ backgroundColor: '#f3f4f6', borderRadius: '9999px', color: '#6b7280', fontSize: '0.75rem', fontWeight: 700, padding: '0.15rem 0.6rem' },
+  primaryButton:{ background: 'linear-gradient(90deg, #4f46e5, #7c3aed)', border: 'none', borderRadius: '6px', color: '#fff', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 700, padding: '0.5rem 1rem', boxShadow: '0 2px 6px rgba(99,102,241,0.3)' },
+  editButton:   { backgroundColor: '#fff', border: '1.5px solid #c4b5fd', borderRadius: '4px', color: '#4f46e5', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, marginRight: '0.5rem', padding: '0.3rem 0.75rem' },
+  deleteButton: { backgroundColor: '#fff', border: '1.5px solid #fca5a5', borderRadius: '4px', color: '#dc2626', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, padding: '0.3rem 0.75rem' },
+  overlay:      { alignItems: 'flex-start', backgroundColor: 'rgba(30,27,75,0.5)', bottom: 0, display: 'flex', justifyContent: 'center', left: 0, overflowY: 'auto', paddingBlock: '2rem', position: 'fixed', right: 0, top: 0, zIndex: 1000 },
+  modalCard:    { backgroundColor: '#fff', borderRadius: '10px', boxShadow: '0 8px 32px rgba(99,102,241,0.2)', padding: '2rem', width: '100%', maxWidth: '640px', alignSelf: 'flex-start', border: '1px solid #e0e7ff' },
+  modalTitle:   { margin: '0 0 1.25rem', fontSize: '1.25rem', fontWeight: 800, color: '#1e1b4b' },
+  formError:    { backgroundColor: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '6px', color: '#dc2626', fontSize: '0.875rem', marginBottom: '1rem', padding: '0.75rem' },
+  field:        { display: 'flex', flexDirection: 'column', marginBottom: '1rem' },
+  rowFields:    { display: 'flex', gap: '0.75rem', flexWrap: 'wrap' },
+  checkboxField:{ alignItems: 'center', display: 'flex', marginBottom: '1rem' },
+  label:        { fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: '#374151' },
+  required:     { color: '#dc2626', marginLeft: '2px' },
+  input:        { backgroundColor: '#f9fafb', border: '1.5px solid #d1d5db', borderRadius: '6px', fontSize: '0.95rem', outline: 'none', padding: '0.55rem 0.75rem', width: '100%', boxSizing: 'border-box', color: '#111827' },
+  inputError:   { borderColor: '#ef4444', backgroundColor: '#fff5f5' },
+  fieldError:   { color: '#ef4444', fontSize: '0.8rem', marginTop: '0.25rem' },
+  modalActions: { display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '1.5rem' },
+  cancelButton: { backgroundColor: '#fff', border: '1.5px solid #d1d5db', borderRadius: '6px', color: '#374151', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600, padding: '0.5rem 1rem' },
 };

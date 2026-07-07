@@ -9,11 +9,11 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function validate(f: FormFields): FieldErrors {
   const e: FieldErrors = {};
-  if (!f.username.trim()) e.username = 'Username is required';
-  if (!f.email.trim()) e.email = 'Email is required';
-  else if (!EMAIL_RE.test(f.email.trim())) e.email = 'Invalid email format';
-  if (!f.password) e.password = 'Password is required';
-  else if (f.password.length < 8) e.password = 'Password must be at least 8 characters';
+  if (!f.username.trim()) e.username = 'El nombre de usuario es requerido';
+  if (!f.email.trim()) e.email = 'El correo electrónico es requerido';
+  else if (!EMAIL_RE.test(f.email.trim())) e.email = 'Formato de correo inválido';
+  if (!f.password) e.password = 'La contraseña es requerida';
+  else if (f.password.length < 8) e.password = 'La contraseña debe tener al menos 8 caracteres';
   return e;
 }
 
@@ -41,11 +41,11 @@ export default function RegisterPage() {
       await register(fields.username.trim(), fields.email.trim(), fields.password);
       navigate('/login', { state: { registered: true } });
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Registration failed';
-      if (msg.includes('Username is already taken')) setFieldErrors({ username: 'Username is already taken' });
-      else if (msg.includes('Email is already registered')) setFieldErrors({ email: 'Email is already registered' });
-      else if (msg.includes('Password must be at least 8 characters')) setFieldErrors({ password: 'Password must be at least 8 characters' });
-      else if (msg.includes('Invalid email format')) setFieldErrors({ email: 'Invalid email format' });
+      const msg = err instanceof Error ? err.message : 'Error al registrarse';
+      if (msg.includes('Username is already taken')) setFieldErrors({ username: 'Ese nombre de usuario ya está en uso' });
+      else if (msg.includes('Email is already registered')) setFieldErrors({ email: 'Ese correo ya está registrado' });
+      else if (msg.includes('Password must be at least 8 characters')) setFieldErrors({ password: 'La contraseña debe tener al menos 8 caracteres' });
+      else if (msg.includes('Invalid email format')) setFieldErrors({ email: 'Formato de correo inválido' });
       else setFormError(msg);
     } finally { setBusy(false); }
   }
@@ -53,20 +53,24 @@ export default function RegisterPage() {
   return (
     <div style={s.page}>
       <div style={s.card}>
-        <h1 style={s.title}>Create account</h1>
-        {formError && <div style={s.error} role="alert">{formError}</div>}
+        <div style={s.logoArea}>
+          <span style={s.logo}>⚡</span>
+          <h1 style={s.title}>Crear cuenta</h1>
+          <p style={s.subtitle}>Únete a QueryArena y practica SQL</p>
+        </div>
+        {formError && <div style={s.error} role="alert">⚠ {formError}</div>}
         <form onSubmit={handleSubmit} noValidate>
-          <Field label="Username" id="username" type="text" name="username"
+          <Field label="Nombre de usuario" id="username" type="text" name="username"
             value={fields.username} onChange={handleChange} error={fieldErrors.username} disabled={busy} autoComplete="username" />
-          <Field label="Email" id="email" type="email" name="email"
+          <Field label="Correo electrónico" id="email" type="email" name="email"
             value={fields.email} onChange={handleChange} error={fieldErrors.email} disabled={busy} autoComplete="email" />
-          <Field label="Password" id="password" type="password" name="password"
+          <Field label="Contraseña" id="password" type="password" name="password"
             value={fields.password} onChange={handleChange} error={fieldErrors.password} disabled={busy} autoComplete="new-password" />
-          <button type="submit" style={s.btn} disabled={busy}>
-            {busy ? 'Creating account…' : 'Register'}
+          <button type="submit" style={{ ...s.btn, ...(busy ? s.btnBusy : {}) }} disabled={busy}>
+            {busy ? 'Creando cuenta…' : 'Registrarse'}
           </button>
         </form>
-        <p style={s.footer}>Already have an account? <Link to="/login" style={s.link}>Sign in</Link></p>
+        <p style={s.footer}>¿Ya tienes cuenta? <Link to="/login" style={s.link}>Inicia sesión</Link></p>
       </div>
     </div>
   );
@@ -83,22 +87,26 @@ function Field({ label, id, type, name, value, onChange, error, disabled, autoCo
       <input id={id} name={name} type={type} value={value} onChange={onChange}
         disabled={disabled} autoComplete={autoComplete}
         style={{ ...s.input, ...(error ? s.inputErr : {}) }} />
-      {error && <span style={s.fieldErr}>{error}</span>}
+      {error && <span style={s.fieldErr} role="alert">{error}</span>}
     </div>
   );
 }
 
 const s: Record<string, React.CSSProperties> = {
-  page:     { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0f1117', padding: '1rem' },
-  card:     { backgroundColor: '#1a1d27', border: '1px solid #2a2d3a', borderRadius: '8px', padding: '2rem', width: '100%', maxWidth: '380px' },
-  title:    { margin: '0 0 1.5rem', fontSize: '1.4rem', fontWeight: 700, color: '#e2e4ec', textAlign: 'center' },
-  error:    { backgroundColor: '#2a0f0f', border: '1px solid #7f1d1d', borderRadius: '4px', color: '#ef4444', fontSize: '0.85rem', marginBottom: '1rem', padding: '0.65rem' },
-  field:    { display: 'flex', flexDirection: 'column', marginBottom: '1rem' },
-  label:    { fontSize: '0.8rem', fontWeight: 500, marginBottom: '0.3rem', color: '#8b8fa8', textTransform: 'uppercase', letterSpacing: '0.05em' },
-  input:    { backgroundColor: '#12151f', border: '1px solid #2a2d3a', borderRadius: '4px', color: '#e2e4ec', fontSize: '0.95rem', outline: 'none', padding: '0.55rem 0.75rem' },
-  inputErr: { borderColor: '#ef4444' },
-  fieldErr: { color: '#ef4444', fontSize: '0.78rem', marginTop: '0.25rem' },
-  btn:      { backgroundColor: '#6366f1', border: 'none', borderRadius: '4px', color: '#fff', cursor: 'pointer', fontSize: '0.95rem', fontWeight: 600, marginTop: '0.5rem', padding: '0.6rem 1rem', width: '100%' },
-  footer:   { fontSize: '0.85rem', marginTop: '1.25rem', textAlign: 'center', color: '#8b8fa8' },
-  link:     { color: '#6366f1' },
+  page:     { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #eff6ff 0%, #f5f3ff 50%, #fdf4ff 100%)', padding: '1rem' },
+  card:     { backgroundColor: '#fff', border: '1px solid #e0e7ff', borderRadius: '12px', padding: '2.5rem', width: '100%', maxWidth: '400px', boxShadow: '0 4px 24px rgba(99,102,241,0.12)' },
+  logoArea: { textAlign: 'center', marginBottom: '1.75rem' },
+  logo:     { fontSize: '2.5rem', display: 'block', marginBottom: '0.5rem' },
+  title:    { margin: '0 0 0.25rem', fontSize: '1.5rem', fontWeight: 800, color: '#1e1b4b' },
+  subtitle: { margin: 0, fontSize: '0.875rem', color: '#6b7280' },
+  error:    { backgroundColor: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '6px', color: '#dc2626', fontSize: '0.875rem', marginBottom: '1.25rem', padding: '0.75rem 1rem' },
+  field:    { display: 'flex', flexDirection: 'column', marginBottom: '1.1rem' },
+  label:    { fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: '#374151' },
+  input:    { backgroundColor: '#f9fafb', border: '1.5px solid #d1d5db', borderRadius: '6px', color: '#111827', fontSize: '0.95rem', outline: 'none', padding: '0.6rem 0.85rem' },
+  inputErr: { borderColor: '#ef4444', backgroundColor: '#fff5f5' },
+  fieldErr: { color: '#ef4444', fontSize: '0.78rem', marginTop: '0.3rem' },
+  btn:      { background: 'linear-gradient(90deg, #4f46e5, #7c3aed)', border: 'none', borderRadius: '6px', color: '#fff', cursor: 'pointer', fontSize: '1rem', fontWeight: 700, marginTop: '0.75rem', padding: '0.7rem 1rem', width: '100%', boxShadow: '0 2px 8px rgba(99,102,241,0.35)' },
+  btnBusy:  { opacity: 0.7, cursor: 'not-allowed' },
+  footer:   { fontSize: '0.875rem', marginTop: '1.5rem', textAlign: 'center', color: '#6b7280' },
+  link:     { color: '#4f46e5', fontWeight: 600, textDecoration: 'none' },
 };

@@ -84,50 +84,34 @@ export default function RankingPage() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h1 style={styles.title}>Ranking</h1>
+        <h1 style={styles.title}>🏆 Ranking Global</h1>
 
-        {/* Loading state */}
         {isLoading && (
-          <p style={styles.statusText} aria-live="polite">
-            Cargando ranking…
-          </p>
+          <p style={styles.statusText} aria-live="polite">Cargando ranking…</p>
         )}
 
-        {/* Error state */}
         {!isLoading && error && (
           <div style={styles.errorBanner} role="alert">
             {error}
-            <button
-              style={styles.retryButton}
-              onClick={() => {
-                setIsLoading(true);
-                setError(null);
-                getRanking()
-                  .then((data) => setRanking(assignPositions(data)))
-                  .catch((err: unknown) => {
-                    const message =
-                      err instanceof Error ? err.message : 'Error al cargar el ranking';
-                    setError(message);
-                  })
-                  .finally(() => setIsLoading(false));
-              }}
-            >
-              Reintentar
-            </button>
+            <button style={styles.retryButton} onClick={() => {
+              setIsLoading(true); setError(null);
+              getRanking()
+                .then((data) => setRanking(assignPositions(data)))
+                .catch((err: unknown) => setError(err instanceof Error ? err.message : 'Error al cargar el ranking'))
+                .finally(() => setIsLoading(false));
+            }}>Reintentar</button>
           </div>
         )}
 
-        {/* Empty state */}
         {!isLoading && !error && ranking.length === 0 && (
           <p style={styles.statusText}>No hay estudiantes registrados aún.</p>
         )}
 
-        {/* Ranking table (Requirements 10.1, 10.2, 10.3) */}
         {!isLoading && !error && ranking.length > 0 && (
           <div style={styles.tableWrapper}>
             <table style={styles.table} aria-label="Tabla de ranking">
               <thead>
-                <tr>
+                <tr style={styles.thead}>
                   <th style={{ ...styles.th, ...styles.thCenter }}>Posición</th>
                   <th style={styles.th}>Usuario</th>
                   <th style={{ ...styles.th, ...styles.thRight }}>Puntaje Acumulado</th>
@@ -137,26 +121,20 @@ export default function RankingPage() {
                 {ranking.map((entry) => {
                   const isCurrentUser = entry.username === user.username;
                   return (
-                    <tr
-                      key={entry.username}
+                    <tr key={entry.username}
                       style={isCurrentUser ? { ...styles.tr, ...styles.trHighlight } : styles.tr}
-                      aria-current={isCurrentUser ? 'true' : undefined}
-                    >
-                      <td style={{ ...styles.td, ...styles.tdCenter }}>
-                        {positionBadge(entry.position)}
-                      </td>
+                      aria-current={isCurrentUser ? 'true' : undefined}>
+                      <td style={{ ...styles.td, ...styles.tdCenter }}>{positionBadge(entry.position)}</td>
                       <td style={styles.td}>
                         {isCurrentUser ? (
                           <span style={styles.currentUserCell}>
                             <span style={styles.youIndicator}>→ Tú</span>
                             <strong>{entry.username}</strong>
                           </span>
-                        ) : (
-                          entry.username
-                        )}
+                        ) : entry.username}
                       </td>
                       <td style={{ ...styles.td, ...styles.tdRight }}>
-                        <span style={styles.score}>{entry.accumulatedScore}</span>
+                        <span style={styles.score}>{entry.accumulatedScore} pts</span>
                       </td>
                     </tr>
                   );
@@ -184,7 +162,7 @@ function positionBadge(position: number): React.ReactNode {
 const styles: Record<string, React.CSSProperties> = {
   container: {
     minHeight: '100vh',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8faff',
     padding: '3rem 1rem',
     display: 'flex',
     justifyContent: 'center',
@@ -192,126 +170,53 @@ const styles: Record<string, React.CSSProperties> = {
   },
   card: {
     backgroundColor: '#fff',
-    borderRadius: '8px',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+    borderRadius: '12px',
+    boxShadow: '0 4px 20px rgba(99,102,241,0.1)',
+    border: '1px solid #e0e7ff',
     padding: '2rem',
     width: '100%',
     maxWidth: '700px',
   },
   title: {
     margin: '0 0 1.5rem',
-    fontSize: '1.5rem',
-    fontWeight: 600,
+    fontSize: '1.75rem',
+    fontWeight: 800,
+    color: '#1e1b4b',
   },
-  statusText: {
-    color: '#6b7280',
-    textAlign: 'center',
-    padding: '2rem 0',
-  },
+  statusText: { color: '#9ca3af', textAlign: 'center', padding: '2rem 0' },
   errorBanner: {
-    backgroundColor: '#fef2f2',
-    border: '1px solid #fca5a5',
-    borderRadius: '4px',
-    color: '#dc2626',
-    fontSize: '0.875rem',
-    padding: '0.75rem 1rem',
-    marginBottom: '1rem',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
+    backgroundColor: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '6px',
+    color: '#dc2626', fontSize: '0.875rem', padding: '0.75rem 1rem', marginBottom: '1rem',
+    display: 'flex', alignItems: 'center', gap: '1rem',
   },
   retryButton: {
-    background: 'none',
-    border: '1px solid #dc2626',
-    borderRadius: '4px',
-    color: '#dc2626',
-    cursor: 'pointer',
-    fontSize: '0.8rem',
-    padding: '0.2rem 0.6rem',
+    background: 'none', border: '1px solid #dc2626', borderRadius: '4px',
+    color: '#dc2626', cursor: 'pointer', fontSize: '0.8rem', padding: '0.2rem 0.6rem',
   },
-  tableWrapper: {
-    overflowX: 'auto',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    fontSize: '0.9rem',
-  },
+  tableWrapper: { overflowX: 'auto' },
+  table: { width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' },
+  thead: { background: 'linear-gradient(90deg, #ede9fe, #e0e7ff)' },
   th: {
-    borderBottom: '2px solid #e5e7eb',
-    color: '#6b7280',
-    fontWeight: 600,
-    fontSize: '0.8rem',
-    textTransform: 'uppercase' as const,
-    letterSpacing: '0.05em',
-    padding: '0.6rem 0.75rem',
-    textAlign: 'left',
+    color: '#4f46e5', fontWeight: 700, fontSize: '0.78rem',
+    textTransform: 'uppercase' as const, letterSpacing: '0.06em',
+    padding: '0.75rem 1rem', textAlign: 'left', borderBottom: '2px solid #e0e7ff',
   },
-  thCenter: {
-    textAlign: 'center',
-  },
-  thRight: {
-    textAlign: 'right',
-  },
-  tr: {
-    borderBottom: '1px solid #f3f4f6',
-  },
-  // Highlighted row for the current user (Requirement 10.2)
-  trHighlight: {
-    backgroundColor: '#eff6ff',
-    borderBottom: '1px solid #bfdbfe',
-  },
-  td: {
-    padding: '0.75rem',
-    color: '#111827',
-    verticalAlign: 'middle',
-  },
-  tdCenter: {
-    textAlign: 'center',
-  },
-  tdRight: {
-    textAlign: 'right',
-  },
-  currentUserCell: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-  },
-  youIndicator: {
-    color: '#1d4ed8',
-    fontSize: '0.8rem',
-    fontWeight: 600,
-  },
-  score: {
-    fontVariantNumeric: 'tabular-nums',
-  },
+  thCenter: { textAlign: 'center' },
+  thRight: { textAlign: 'right' },
+  tr: { borderBottom: '1px solid #f3f4f6' },
+  trHighlight: { backgroundColor: '#eff6ff', borderBottom: '1px solid #bfdbfe' },
+  td: { padding: '0.85rem 1rem', color: '#111827', verticalAlign: 'middle' },
+  tdCenter: { textAlign: 'center' },
+  tdRight: { textAlign: 'right' },
+  currentUserCell: { display: 'inline-flex', alignItems: 'center', gap: '0.5rem' },
+  youIndicator: { color: '#4f46e5', fontSize: '0.8rem', fontWeight: 700 },
+  score: { fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: '#4f46e5' },
   positionBadge: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: '50%',
-    width: '28px',
-    height: '28px',
-    fontWeight: 700,
-    fontSize: '0.85rem',
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+    borderRadius: '50%', width: '32px', height: '32px', fontWeight: 800, fontSize: '0.85rem',
   },
-  gold: {
-    backgroundColor: '#fef9c3',
-    color: '#a16207',
-    border: '1px solid #fde047',
-  },
-  silver: {
-    backgroundColor: '#f1f5f9',
-    color: '#475569',
-    border: '1px solid #cbd5e1',
-  },
-  bronze: {
-    backgroundColor: '#fff7ed',
-    color: '#c2410c',
-    border: '1px solid #fdba74',
-  },
-  positionText: {
-    color: '#6b7280',
-    fontWeight: 500,
-  },
+  gold:   { backgroundColor: '#fef9c3', color: '#a16207', border: '2px solid #fde047' },
+  silver: { backgroundColor: '#f1f5f9', color: '#475569', border: '2px solid #cbd5e1' },
+  bronze: { backgroundColor: '#fff7ed', color: '#c2410c', border: '2px solid #fdba74' },
+  positionText: { color: '#6b7280', fontWeight: 600 },
 };
