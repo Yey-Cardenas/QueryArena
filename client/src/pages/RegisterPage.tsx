@@ -54,7 +54,7 @@ export default function RegisterPage() {
     <div style={s.page}>
       <div style={s.card}>
         <div style={s.logoArea}>
-          <span style={s.logo}>⚡</span>
+          <img src="/logo.png" alt="QueryArena" style={s.logoImg} />
           <h1 style={s.title}>Crear cuenta</h1>
           <p style={s.subtitle}>Únete a QueryArena y practica SQL</p>
         </div>
@@ -96,7 +96,7 @@ const s: Record<string, React.CSSProperties> = {
   page:     { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #eff6ff 0%, #f5f3ff 50%, #fdf4ff 100%)', padding: '1rem' },
   card:     { backgroundColor: '#fff', border: '1px solid #e0e7ff', borderRadius: '12px', padding: '2.5rem', width: '100%', maxWidth: '400px', boxShadow: '0 4px 24px rgba(99,102,241,0.12)' },
   logoArea: { textAlign: 'center', marginBottom: '1.75rem' },
-  logo:     { fontSize: '2.5rem', display: 'block', marginBottom: '0.5rem' },
+  logoImg: { width: '72px', height: '72px', objectFit: 'contain' as const, marginBottom: '0.5rem', borderRadius: '12px' },
   title:    { margin: '0 0 0.25rem', fontSize: '1.5rem', fontWeight: 800, color: '#1e1b4b' },
   subtitle: { margin: 0, fontSize: '0.875rem', color: '#6b7280' },
   error:    { backgroundColor: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '6px', color: '#dc2626', fontSize: '0.875rem', marginBottom: '1.25rem', padding: '0.75rem 1rem' },
