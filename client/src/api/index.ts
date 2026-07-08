@@ -6,4 +6,4 @@ export * from './exercises.api';
 export * from './attempts.api';
 export * from './ranking.api';
 export * from './dashboard.api';
-export * from './admin.api';
+export * as adminApi from './admin.api';

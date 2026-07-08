@@ -1,4 +1,4 @@
-import { Exercise, ExerciseDetail } from '../types';
+import { Exercise, ExerciseDetail, Level, Category } from '../types';
 import { apiClient } from './client';
 
 export interface ExerciseFilters {
@@ -64,4 +64,22 @@ export async function listExercises(filters?: ExerciseFilters): Promise<Exercise
 export async function getExercise(id: string): Promise<ExerciseDetail> {
   const { data } = await apiClient.get<ExerciseDetailRaw>(`/exercises/${id}`);
   return mapExerciseDetail(data);
+}
+
+/**
+ * List all difficulty levels (available to students and admins).
+ * GET /exercises/levels
+ */
+export async function listLevels(): Promise<Level[]> {
+  const { data } = await apiClient.get<Level[]>('/exercises/levels');
+  return data;
+}
+
+/**
+ * List all categories (available to students and admins).
+ * GET /exercises/categories
+ */
+export async function listCategories(): Promise<Category[]> {
+  const { data } = await apiClient.get<Category[]>('/exercises/categories');
+  return data;
 }

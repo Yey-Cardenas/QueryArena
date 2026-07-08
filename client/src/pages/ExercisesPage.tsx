@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import * as exercisesApi from '../api/exercises.api';
-import * as adminApi from '../api/admin.api';
 import { Exercise, Level, Category } from '../types';
 
 export default function ExercisesPage() {
@@ -22,8 +21,9 @@ export default function ExercisesPage() {
 
   useEffect(() => {
     if (!user) return;
-    Promise.all([adminApi.listLevels(), adminApi.listCategories()])
+    Promise.all([exercisesApi.listLevels(), exercisesApi.listCategories()])
       .then(([l, c]) => { setLevels(l); setCategories(c); })
+      .catch(() => { /* filters stay empty — exercise list still works */ })
       .finally(() => setLoadingFilters(false));
   }, [user]);
 
