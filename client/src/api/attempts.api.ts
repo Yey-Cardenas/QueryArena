@@ -18,6 +18,32 @@ interface AttemptResultRaw {
   hint: string | null;
 }
 
+/** Raw shape of a history item returned by the backend (snake_case). */
+interface AttemptHistoryRaw {
+  id: string;
+  exercise_id: string;
+  exercise_title: string | null;
+  query_sent: string;
+  status: AttemptStatus;
+  score: number;
+  resolution_time_ms: number;
+  created_at: string;
+}
+
+function mapHistoryItem(raw: AttemptHistoryRaw): Attempt {
+  return {
+    id: raw.id,
+    userId: '',                          // not returned by history endpoint
+    exerciseId: raw.exercise_id,
+    exerciseTitle: raw.exercise_title ?? undefined,
+    querySent: raw.query_sent,
+    status: raw.status,
+    score: raw.score,
+    resolutionTimeMs: raw.resolution_time_ms,
+    createdAt: raw.created_at,
+  };
+}
+
 /**
  * Submit an SQL query attempt for an exercise.
  * POST /attempts
@@ -51,6 +77,6 @@ export async function getAttemptHistory(exerciseId?: string): Promise<Attempt[]>
   const params: Record<string, unknown> = {};
   if (exerciseId !== undefined) params['exercise_id'] = exerciseId;
 
-  const { data } = await apiClient.get<Attempt[]>('/attempts', { params });
-  return data;
+  const { data } = await apiClient.get<AttemptHistoryRaw[]>('/attempts', { params });
+  return data.map(mapHistoryItem);
 }

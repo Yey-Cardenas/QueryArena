@@ -16,6 +16,7 @@ import type { IAttemptRepository } from '../ports/out/IAttemptRepository';
 import type { IExerciseRepository } from '../ports/out/IExerciseRepository';
 import type { IRankingRepository } from '../ports/out/IRankingRepository';
 import type { IResultUseCase } from '../ports/in/IResultUseCase';
+import type { Attempt } from '../entities/Attempt';
 
 // ---------------------------------------------------------------------------
 // Domain error types (shared shape with other use cases)
@@ -134,6 +135,7 @@ export class AttemptUseCase implements IAttemptUseCase {
     return attempts.map((attempt) => ({
       id: attempt.id,
       exercise_id: attempt.exercise_id,
+      exercise_title: (attempt as Attempt & { exercise_title?: string | null }).exercise_title ?? null,
       query_sent: attempt.query_sent,
       status: attempt.status,
       score: attempt.score,

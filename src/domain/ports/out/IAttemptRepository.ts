@@ -15,8 +15,9 @@ export interface IAttemptRepository {
   /**
    * Return all attempts for the given user, optionally filtered by exercise.
    * Results should be ordered by created_at descending.
+   * May include exercise_title when the repository joins with the exercises table.
    */
-  findByUser(userId: string, exerciseId?: string): Promise<Attempt[]>;
+  findByUser(userId: string, exerciseId?: string): Promise<(Attempt & { exercise_title?: string | null })[]>;
 
   /**
    * Update the status and/or score of an existing attempt.

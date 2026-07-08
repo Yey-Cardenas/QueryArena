@@ -20,6 +20,7 @@ export interface AttemptResult {
 export interface AttemptHistoryItem {
   id: string;
   exercise_id: string;
+  exercise_title: string | null;
   query_sent: string;
   status: AttemptStatus;
   score: number;

@@ -36,25 +36,28 @@ export class PostgresAttemptRepository implements IAttemptRepository {
   /**
    * Return all attempts for the given user, optionally filtered by exercise.
    * Results are ordered by created_at descending (most recent first).
+   * Joins with exercises to include the exercise title.
    */
-  async findByUser(userId: string, exerciseId?: string): Promise<Attempt[]> {
+  async findByUser(userId: string, exerciseId?: string): Promise<(Attempt & { exercise_title?: string | null })[]> {
     if (exerciseId !== undefined) {
       const sql = `
-        SELECT *
-        FROM attempts
-        WHERE user_id = $1
-          AND exercise_id = $2
-        ORDER BY created_at DESC
+        SELECT a.*, e.title AS exercise_title
+        FROM attempts a
+        LEFT JOIN exercises e ON e.id = a.exercise_id
+        WHERE a.user_id = $1
+          AND a.exercise_id = $2
+        ORDER BY a.created_at DESC
       `;
       const result = await query<AttemptRow>(sql, [userId, exerciseId]);
       return result.rows.map(toAttempt);
     }
 
     const sql = `
-      SELECT *
-      FROM attempts
-      WHERE user_id = $1
-      ORDER BY created_at DESC
+      SELECT a.*, e.title AS exercise_title
+      FROM attempts a
+      LEFT JOIN exercises e ON e.id = a.exercise_id
+      WHERE a.user_id = $1
+      ORDER BY a.created_at DESC
     `;
     const result = await query<AttemptRow>(sql, [userId]);
     return result.rows.map(toAttempt);
