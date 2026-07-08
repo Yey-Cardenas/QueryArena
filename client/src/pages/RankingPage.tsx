@@ -127,10 +127,7 @@ export default function RankingPage() {
                       <td style={{ ...styles.td, ...styles.tdCenter }}>{positionBadge(entry.position)}</td>
                       <td style={styles.td}>
                         {isCurrentUser ? (
-                          <span style={styles.currentUserCell}>
-                            <span style={styles.youIndicator}>→ Tú</span>
-                            <strong>{entry.username}</strong>
-                          </span>
+                          <strong style={styles.currentUserName}>{entry.username}</strong>
                         ) : entry.username}
                       </td>
                       <td style={{ ...styles.td, ...styles.tdRight }}>
@@ -210,6 +207,7 @@ const styles: Record<string, React.CSSProperties> = {
   tdRight: { textAlign: 'right' },
   currentUserCell: { display: 'inline-flex', alignItems: 'center', gap: '0.5rem' },
   youIndicator: { color: '#4f46e5', fontSize: '0.8rem', fontWeight: 700 },
+  currentUserName: { color: '#1e1b4b', fontWeight: 800, fontSize: '1rem' },
   score: { fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: '#4f46e5' },
   positionBadge: {
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
