@@ -5,8 +5,14 @@ const config: Config = {
   testEnvironment: 'node',
   roots: ['<rootDir>/src', '<rootDir>/tests'],
   testMatch: [
-    '**/tests/**/*.spec.ts',
+    '**/tests/unit/**/*.spec.ts',
+    '**/tests/integration/**/*.spec.ts',
     '**/src/**/*.spec.ts',
+  ],
+  // Excluir explícitamente los tests E2E de Playwright — deben correr con 'npx playwright test'
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '<rootDir>/tests/e2e/',
   ],
   collectCoverageFrom: [
     'src/**/*.ts',

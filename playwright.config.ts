@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import path from 'path';
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -21,7 +22,8 @@ export default defineConfig({
 
   webServer: {
     command: 'npm run dev',
-    cwd: 'd:\\QueryArena\\client',
+    // Ruta dinámica: funciona en cualquier máquina independientemente de la letra de disco
+    cwd: path.resolve(__dirname, 'client'),
     port: 5173,
     reuseExistingServer: !process.env.CI,
     timeout: 60000,
