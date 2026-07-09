@@ -94,6 +94,9 @@ export class PostgresAttemptRepository implements IAttemptRepository {
         'SELECT * FROM attempts WHERE id = $1',
         [id],
       );
+      if (result.rows.length === 0) {
+        throw new Error(`Attempt with id "${id}" not found`);
+      }
       return toAttempt(result.rows[0]);
     }
 
@@ -106,6 +109,9 @@ export class PostgresAttemptRepository implements IAttemptRepository {
     `;
 
     const result = await query<AttemptRow>(sql, params);
+    if (result.rows.length === 0) {
+      throw new Error(`Attempt with id "${id}" not found`);
+    }
     return toAttempt(result.rows[0]);
   }
 

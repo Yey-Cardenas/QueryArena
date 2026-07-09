@@ -34,9 +34,22 @@ export async function listExercises(
       category_id?: string;
     };
 
+    // Validate numeric query params — reject NaN before passing to the use case.
+    const parsedLevelId    = level_id    !== undefined ? Number(level_id)    : undefined;
+    const parsedCategoryId = category_id !== undefined ? Number(category_id) : undefined;
+
+    if (parsedLevelId !== undefined && !Number.isInteger(parsedLevelId)) {
+      res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'level_id must be an integer.' } });
+      return;
+    }
+    if (parsedCategoryId !== undefined && !Number.isInteger(parsedCategoryId)) {
+      res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'category_id must be an integer.' } });
+      return;
+    }
+
     const filters = {
-      ...(level_id !== undefined && { level_id: Number(level_id) }),
-      ...(category_id !== undefined && { category_id: Number(category_id) }),
+      ...(parsedLevelId    !== undefined && { level_id:    parsedLevelId }),
+      ...(parsedCategoryId !== undefined && { category_id: parsedCategoryId }),
     };
 
     const exercises = await container.exerciseUseCase.listExercises(filters);

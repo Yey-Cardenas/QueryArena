@@ -35,11 +35,13 @@ export async function register(
       password: unknown;
     };
 
-    const result = await container.authUseCase.register(
-      username as string,
-      email as string,
-      password as string,
-    );
+    // Reject non-string values early — the use case expects plain strings.
+    if (typeof username !== 'string' || typeof email !== 'string' || typeof password !== 'string') {
+      res.status(422).json({ error: { code: 'VALIDATION_ERROR', message: 'username, email and password must be strings.' } });
+      return;
+    }
+
+    const result = await container.authUseCase.register(username, email, password);
 
     res.status(201).json(result);
   } catch (err) {
@@ -69,10 +71,13 @@ export async function login(
       password: unknown;
     };
 
-    const result = await container.authUseCase.login(
-      email as string,
-      password as string,
-    );
+    // Reject non-string values early — the use case expects plain strings.
+    if (typeof email !== 'string' || typeof password !== 'string') {
+      res.status(422).json({ error: { code: 'VALIDATION_ERROR', message: 'email and password must be strings.' } });
+      return;
+    }
+
+    const result = await container.authUseCase.login(email, password);
 
     res.status(200).json(result);
   } catch (err) {

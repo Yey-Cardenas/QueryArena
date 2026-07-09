@@ -180,6 +180,20 @@ describe('PostgresAttemptRepository', () => {
         ['att-uuid-1'],
       );
     });
+
+    it('throws when attempt not found in SELECT fallback (no fields provided)', async () => {
+      mockQuery.mockResolvedValue(makeResult([]));
+      await expect(repo.update('nonexistent', {})).rejects.toThrow(
+        'Attempt with id "nonexistent" not found',
+      );
+    });
+
+    it('throws when UPDATE finds no matching row', async () => {
+      mockQuery.mockResolvedValue(makeResult([]));
+      await expect(repo.update('nonexistent', { status: 'correct' })).rejects.toThrow(
+        'Attempt with id "nonexistent" not found',
+      );
+    });
   });
 
   // ── countByExercise ───────────────────────────────────────────────────────

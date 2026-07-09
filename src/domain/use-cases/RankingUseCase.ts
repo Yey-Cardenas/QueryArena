@@ -140,8 +140,9 @@ export class RankingUseCase implements IRankingUseCase {
             row.last_correct_at.getTime() === prev.last_correct_at.getTime());
 
         if (!(sameScore && sameDate)) {
-          // Advance position counter by 1 (dense ranking increment).
-          position = i + 1;
+          // Dense ranking: advance by 1 regardless of how many were tied before.
+          // Using i+1 here would produce gaps (1,1,3 instead of 1,1,2).
+          position += 1;
         }
         // When tied, `position` is left unchanged (shared position).
       }
