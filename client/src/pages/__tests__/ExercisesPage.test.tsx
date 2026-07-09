@@ -26,10 +26,7 @@ jest.mock('react-router-dom', () => ({
 }));
 
 jest.mock('../../api/exercises.api', () => ({
-  listExercises: jest.fn(),
-}));
-
-jest.mock('../../api/admin.api', () => ({
+  listExercises:  jest.fn(),
   listLevels:     jest.fn(),
   listCategories: jest.fn(),
 }));
@@ -39,12 +36,11 @@ jest.mock('../../hooks/useAuth', () => ({
 }));
 
 import * as exercisesApi from '../../api/exercises.api';
-import * as adminApi     from '../../api/admin.api';
 import { useAuth }       from '../../hooks/useAuth';
 
 const mockListExercises  = exercisesApi.listExercises  as jest.Mock;
-const mockListLevels     = adminApi.listLevels         as jest.Mock;
-const mockListCategories = adminApi.listCategories     as jest.Mock;
+const mockListLevels     = exercisesApi.listLevels     as jest.Mock;
+const mockListCategories = exercisesApi.listCategories as jest.Mock;
 const mockUseAuth        = useAuth                     as jest.Mock;
 
 // ---------------------------------------------------------------------------

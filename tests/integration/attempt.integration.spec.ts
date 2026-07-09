@@ -107,6 +107,7 @@ const sampleAttemptResult: AttemptResult = {
 const sampleHistoryItem: AttemptHistoryItem = {
   id:                 'attempt-uuid-1',
   exercise_id:        'exercise-uuid-1',
+  exercise_title:     'Sample Exercise',
   query_sent:         'SELECT * FROM users;',
   status:             'correct',
   score:              10,
